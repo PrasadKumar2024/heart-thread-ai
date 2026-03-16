@@ -104,7 +104,7 @@ export function ChatInput() {
             rows={1}
             className="flex-1 resize-none rounded-2xl bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 transition-all duration-300"
             style={{
-              focusRingColor: companion.colorHex,
+              outlineColor: companion.colorHex,
             }}
           />
           <motion.button
