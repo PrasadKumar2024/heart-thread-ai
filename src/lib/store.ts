@@ -1,0 +1,94 @@
+import { create } from 'zustand';
+import type { CompanionMode } from './companions';
+
+export interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+}
+
+export interface Conversation {
+  id: string;
+  mode: CompanionMode;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+}
+
+interface UserProfile {
+  name: string;
+  goal: string;
+  onboarded: boolean;
+}
+
+interface AppState {
+  profile: UserProfile;
+  setProfile: (p: Partial<UserProfile>) => void;
+
+  activeMode: CompanionMode;
+  setActiveMode: (mode: CompanionMode) => void;
+
+  conversations: Conversation[];
+  activeConversationId: string | null;
+  setActiveConversation: (id: string | null) => void;
+  createConversation: (mode: CompanionMode) => string;
+  addMessage: (conversationId: string, message: Omit<Message, 'id' | 'timestamp'>) => void;
+
+  sidebarOpen: boolean;
+  setSidebarOpen: (open: boolean) => void;
+
+  isTyping: boolean;
+  setIsTyping: (typing: boolean) => void;
+}
+
+let msgCounter = 0;
+
+export const useAppStore = create<AppState>((set, get) => ({
+  profile: { name: '', goal: '', onboarded: false },
+  setProfile: (p) => set((s) => ({ profile: { ...s.profile, ...p } })),
+
+  activeMode: 'kai',
+  setActiveMode: (mode) => set({ activeMode: mode }),
+
+  conversations: [],
+  activeConversationId: null,
+  setActiveConversation: (id) => set({ activeConversationId: id }),
+
+  createConversation: (mode) => {
+    const id = crypto.randomUUID();
+    set((s) => ({
+      conversations: [
+        { id, mode, title: 'New conversation', messages: [], createdAt: new Date() },
+        ...s.conversations,
+      ],
+      activeConversationId: id,
+      activeMode: mode,
+    }));
+    return id;
+  },
+
+  addMessage: (conversationId, message) => {
+    msgCounter++;
+    const msg: Message = { ...message, id: `msg-${msgCounter}`, timestamp: new Date() };
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id === conversationId
+          ? {
+              ...c,
+              messages: [...c.messages, msg],
+              title: c.messages.length === 0 && message.role === 'user'
+                ? message.content.slice(0, 40) + (message.content.length > 40 ? '…' : '')
+                : c.title,
+            }
+          : c
+      ),
+    }));
+  },
+
+  sidebarOpen: false,
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+
+  isTyping: false,
+  setIsTyping: (typing) => set({ isTyping: typing }),
+}));
