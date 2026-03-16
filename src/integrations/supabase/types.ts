@@ -20,6 +20,7 @@ export type Database = {
           id: string
           mode: string
           title: string
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -27,6 +28,7 @@ export type Database = {
           id?: string
           mode: string
           title?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -34,6 +36,7 @@ export type Database = {
           id?: string
           mode?: string
           title?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -44,6 +47,7 @@ export type Database = {
           conversation_id: string
           created_at: string
           id: string
+          mode: string | null
           role: string
           user_id: string
         }
@@ -52,6 +56,7 @@ export type Database = {
           conversation_id: string
           created_at?: string
           id?: string
+          mode?: string | null
           role: string
           user_id: string
         }
@@ -60,6 +65,7 @@ export type Database = {
           conversation_id?: string
           created_at?: string
           id?: string
+          mode?: string | null
           role?: string
           user_id?: string
         }
@@ -84,6 +90,7 @@ export type Database = {
           last_message_date: string | null
           messages_today: number
           name: string
+          streak_days: number
         }
         Insert: {
           created_at?: string
@@ -95,6 +102,7 @@ export type Database = {
           last_message_date?: string | null
           messages_today?: number
           name?: string
+          streak_days?: number
         }
         Update: {
           created_at?: string
@@ -106,6 +114,7 @@ export type Database = {
           last_message_date?: string | null
           messages_today?: number
           name?: string
+          streak_days?: number
         }
         Relationships: []
       }
