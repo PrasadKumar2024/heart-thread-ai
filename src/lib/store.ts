@@ -20,6 +20,8 @@ interface UserProfile {
   name: string;
   goal: string;
   onboarded: boolean;
+  customPersona?: string;
+  customPersonaName?: string;
 }
 
 interface AppState {
@@ -34,6 +36,7 @@ interface AppState {
   setActiveConversation: (id: string | null) => void;
   createConversation: (mode: CompanionMode) => string;
   addMessage: (conversationId: string, message: Omit<Message, 'id' | 'timestamp'>) => void;
+  updateLastAssistantMessage: (conversationId: string, content: string) => void;
 
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -83,6 +86,20 @@ export const useAppStore = create<AppState>((set, get) => ({
             }
           : c
       ),
+    }));
+  },
+
+  updateLastAssistantMessage: (conversationId, content) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) => {
+        if (c.id !== conversationId) return c;
+        const msgs = [...c.messages];
+        const last = msgs[msgs.length - 1];
+        if (last?.role === 'assistant') {
+          msgs[msgs.length - 1] = { ...last, content };
+        }
+        return { ...c, messages: msgs };
+      }),
     }));
   },
 

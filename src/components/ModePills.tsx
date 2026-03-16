@@ -8,7 +8,6 @@ export function ModePills() {
 
   const handleModeSwitch = (id: CompanionMode) => {
     setActiveMode(id);
-    // Check if current conversation matches mode, if not create new
     const current = conversations.find((c) => c.id === activeConversationId);
     if (!current || current.mode !== id) {
       const existing = conversations.find((c) => c.mode === id);
@@ -29,7 +28,7 @@ export function ModePills() {
             key={c.id}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleModeSwitch(c.id)}
-            className="flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 text-sm transition-all duration-300"
+            className="flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 text-xs transition-all duration-300"
             style={{
               backgroundColor: isActive ? `${c.colorHex}20` : 'transparent',
               color: isActive ? c.colorHex : 'hsl(var(--muted-foreground))',
@@ -37,7 +36,7 @@ export function ModePills() {
             }}
           >
             <span>{c.emoji}</span>
-            <span className="font-medium">{c.name}</span>
+            <span className="font-medium">{c.subtitle} · {c.name}</span>
           </motion.button>
         );
       })}

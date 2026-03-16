@@ -1,13 +1,14 @@
 import { motion } from 'framer-motion';
-import { Menu } from 'lucide-react';
+import { Menu, Pencil } from 'lucide-react';
+import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { getCompanion, companions, customCompanion, type CompanionMode } from '@/lib/companions';
 import { AppSidebar } from '@/components/AppSidebar';
 import { ModePills } from '@/components/ModePills';
 import { ChatMessages } from '@/components/ChatMessages';
 import { ChatInput } from '@/components/ChatInput';
+import { CustomPersonaEditor } from '@/components/CustomPersonaEditor';
 import { Search, Plus } from 'lucide-react';
-import { useState } from 'react';
 
 function DesktopSidebar() {
   const {
@@ -135,6 +136,7 @@ function DesktopSidebar() {
 export function ChatLayout() {
   const { activeMode, setSidebarOpen } = useAppStore();
   const companion = getCompanion(activeMode);
+  const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -157,28 +159,43 @@ export function ChatLayout() {
 
       {/* Main chat area */}
       <div className="relative flex flex-1 flex-col min-w-0">
-        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground transition-colors md:hidden"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-          <div>
-            <h2 className="font-display text-lg italic tracking-tight" style={{ color: companion.colorHex }}>
-              {companion.name}
-            </h2>
-            <p className="text-xs text-muted-foreground">{companion.subtitle}</p>
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground transition-colors md:hidden"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <div>
+              <h2 className="font-display text-lg italic tracking-tight" style={{ color: companion.colorHex }}>
+                {companion.name}
+              </h2>
+              <p className="text-xs text-muted-foreground">{companion.subtitle}</p>
+            </div>
           </div>
-        </div>
-
-        <div className="border-b border-border px-4">
-          <ModePills />
+          {activeMode === 'custom' && (
+            <button
+              onClick={() => setPersonaEditorOpen(true)}
+              className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground transition-colors"
+              title="Edit persona"
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <ChatMessages />
+
+        {/* Mode pills above input */}
+        <div className="border-t border-border px-4">
+          <ModePills />
+        </div>
+
         <ChatInput />
       </div>
+
+      <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
     </div>
   );
 }
