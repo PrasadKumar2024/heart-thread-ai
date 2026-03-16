@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Menu, Pencil } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
 import { getCompanion, companions, customCompanion, type CompanionMode } from '@/lib/companions';
 import { AppSidebar } from '@/components/AppSidebar';
@@ -8,12 +8,7 @@ import { ModePills } from '@/components/ModePills';
 import { ChatMessages } from '@/components/ChatMessages';
 import { ChatInput } from '@/components/ChatInput';
 import { CustomPersonaEditor } from '@/components/CustomPersonaEditor';
-import { UpgradeModal } from '@/components/UpgradeModal';
 import { Search, Plus } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { callChat } from '@/lib/chatApi';
-import { getOpeningPrompt } from '@/lib/systemPrompts';
-import { fetchRecentForGreeting } from '@/lib/memory';
 
 function DesktopSidebar() {
   const {
@@ -139,76 +134,30 @@ function DesktopSidebar() {
 }
 
 export function ChatLayout() {
-  const { activeMode, activeConversationId, conversations, setSidebarOpen, addMessage, setIsTyping, profile } = useAppStore();
+  const { activeMode, setSidebarOpen } = useAppStore();
   const companion = getCompanion(activeMode);
   const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [greetingGenerated, setGreetingGenerated] = useState<Record<string, boolean>>({});
-
-  // Generate opening message when conversation is empty
-  const generateOpeningMessage = useCallback(async () => {
-    const convId = activeConversationId;
-    if (!convId) return;
-    const conv = conversations.find(c => c.id === convId);
-    if (!conv || conv.messages.length > 0) return;
-    if (greetingGenerated[convId]) return;
-
-    setGreetingGenerated(prev => ({ ...prev, [convId]: true }));
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const recentMsgs = await fetchRecentForGreeting(user.id, activeMode);
-      const prompt = getOpeningPrompt(companion.name, companion.subtitle, profile.name, recentMsgs || undefined);
-
-      setIsTyping(true);
-      const greeting = await callChat({
-        messages: [{ role: 'user', content: prompt }],
-        systemPrompt: 'You generate greetings in character. Return ONLY the greeting. No quotes.',
-      });
-
-      if (greeting) {
-        addMessage(convId, { role: 'assistant', content: greeting });
-      }
-    } catch {
-      // Silent fail for greetings
-    } finally {
-      setIsTyping(false);
-    }
-  }, [activeConversationId, activeMode, conversations, companion, profile.name, greetingGenerated, addMessage, setIsTyping]);
-
-  useEffect(() => {
-    if (activeConversationId) {
-      generateOpeningMessage();
-    }
-  }, [activeConversationId, generateOpeningMessage]);
-
-  // Custom person paywall for non-premium users
-  const handleCustomPersona = () => {
-    if (activeMode === 'custom' && !profile.isPremium) {
-      setUpgradeOpen(true);
-      return;
-    }
-    setPersonaEditorOpen(true);
-  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
+      {/* Ambient glow */}
       <motion.div
         animate={{ backgroundColor: `${companion.colorHex}05` }}
         transition={{ duration: 1 }}
         className="fixed inset-0 pointer-events-none"
       />
 
+      {/* Desktop sidebar */}
       <div className="hidden md:block">
         <DesktopSidebar />
       </div>
 
+      {/* Mobile sidebar */}
       <div className="md:hidden">
         <AppSidebar />
       </div>
 
+      {/* Main chat area */}
       <div className="relative flex flex-1 flex-col min-w-0">
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-3">
@@ -227,7 +176,7 @@ export function ChatLayout() {
           </div>
           {activeMode === 'custom' && (
             <button
-              onClick={handleCustomPersona}
+              onClick={() => setPersonaEditorOpen(true)}
               className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground transition-colors"
               title="Edit persona"
             >
@@ -238,15 +187,15 @@ export function ChatLayout() {
 
         <ChatMessages />
 
+        {/* Mode pills above input */}
         <div className="border-t border-border px-4">
           <ModePills />
         </div>
 
-        <ChatInput onLimitReached={() => setUpgradeOpen(true)} />
+        <ChatInput />
       </div>
 
       <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
-      <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </div>
   );
 }
