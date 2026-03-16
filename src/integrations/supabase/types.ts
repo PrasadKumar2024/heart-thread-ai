@@ -14,7 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          mode: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mode: string
+          title?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mode?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          custom_persona: string | null
+          custom_persona_name: string | null
+          goal: string
+          id: string
+          is_premium: boolean
+          last_message_date: string | null
+          messages_today: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          custom_persona?: string | null
+          custom_persona_name?: string | null
+          goal?: string
+          id: string
+          is_premium?: boolean
+          last_message_date?: string | null
+          messages_today?: number
+          name?: string
+        }
+        Update: {
+          created_at?: string
+          custom_persona?: string | null
+          custom_persona_name?: string | null
+          goal?: string
+          id?: string
+          is_premium?: boolean
+          last_message_date?: string | null
+          messages_today?: number
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
