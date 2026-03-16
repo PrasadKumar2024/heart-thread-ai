@@ -3,17 +3,23 @@ import { motion } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { getCompanion } from '@/lib/companions';
-import { streamChat } from '@/lib/chatApi';
-import { getSystemPrompt } from '@/lib/systemPrompts';
+import { streamChat, callChat } from '@/lib/chatApi';
+import { getSystemPrompt, getTitlePrompt } from '@/lib/systemPrompts';
+import { fetchMemory, checkMessageLimit, saveConversation, saveMessage, updateConversationTitle } from '@/lib/memory';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-export function ChatInput() {
+interface Props {
+  onLimitReached: () => void;
+}
+
+export function ChatInput({ onLimitReached }: Props) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const {
     activeMode, activeConversationId, createConversation,
     addMessage, updateLastAssistantMessage, setIsTyping, profile,
+    conversations, updateConversationTitle: updateStoreTitle,
   } = useAppStore();
   const companion = getCompanion(activeMode);
 
@@ -28,26 +34,48 @@ export function ChatInput() {
     const trimmed = input.trim();
     if (!trimmed) return;
 
+    // Check auth
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast.error('Please log in first');
+      return;
+    }
+
+    // Check message limit
+    const { allowed } = await checkMessageLimit(user.id);
+    if (!allowed) {
+      onLimitReached();
+      return;
+    }
+
     let convId = activeConversationId;
+    const isFirstMessage = !convId || !conversations.find(c => c.id === convId)?.messages.some(m => m.role === 'user');
+
     if (!convId) {
       convId = createConversation(activeMode);
     }
+
+    // Save conversation to DB
+    await saveConversation(user.id, convId, activeMode, 'New conversation');
 
     addMessage(convId, { role: 'user', content: trimmed });
     setInput('');
     setIsTyping(true);
 
-    // Get conversation messages for context
+    // Fetch memory (last 20 messages for this mode)
+    const memory = await fetchMemory(user.id, activeMode);
+
+    const systemPrompt = getSystemPrompt(
+      activeMode, profile.name, profile.goal, memory,
+      profile.customPersona, profile.customPersonaName
+    );
+
+    // Build message history from current conversation
     const conv = useAppStore.getState().conversations.find((c) => c.id === convId);
     const history = (conv?.messages || []).map((m) => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     }));
-
-    const systemPrompt = getSystemPrompt(
-      activeMode, profile.name, profile.goal,
-      profile.customPersona, profile.customPersonaName
-    );
 
     // Add empty assistant message for streaming
     addMessage(convId, { role: 'assistant', content: '' });
@@ -64,26 +92,26 @@ export function ChatInput() {
         },
         onDone: async () => {
           setIsTyping(false);
-          // Save to Supabase
+          // Save messages to DB
           try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-              // Save user message
-              await supabase.from('messages').insert({
-                conversation_id: convId!,
-                user_id: user.id,
-                role: 'user',
-                content: trimmed,
-              });
-              // Save assistant message
-              await supabase.from('messages').insert({
-                conversation_id: convId!,
-                user_id: user.id,
-                role: 'assistant',
-                content: fullContent,
-              });
-            }
+            await saveMessage(user.id, convId!, 'user', trimmed, activeMode);
+            await saveMessage(user.id, convId!, 'assistant', fullContent, activeMode);
           } catch { /* silent */ }
+
+          // Auto-generate title on first message
+          if (isFirstMessage && trimmed) {
+            try {
+              const title = await callChat({
+                messages: [{ role: 'user', content: getTitlePrompt(trimmed) }],
+                systemPrompt: 'You generate short titles. Return ONLY the title.',
+              });
+              if (title) {
+                const cleanTitle = title.slice(0, 50);
+                updateStoreTitle(convId!, cleanTitle);
+                await updateConversationTitle(convId!, cleanTitle);
+              }
+            } catch { /* silent */ }
+          }
         },
         onError: (error) => {
           setIsTyping(false);

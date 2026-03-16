@@ -37,7 +37,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     if (!session?.user) return;
     supabase
       .from('profiles')
-      .select('name, goal, custom_persona, custom_persona_name')
+      .select('name, goal, custom_persona, custom_persona_name, is_premium')
       .eq('id', session.user.id)
       .single()
       .then(({ data }) => {
@@ -48,6 +48,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
             onboarded: !!data.name,
             customPersona: data.custom_persona || undefined,
             customPersonaName: data.custom_persona_name || undefined,
+            isPremium: data.is_premium || false,
           });
         }
       });
