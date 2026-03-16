@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/lib/store';
 import { companions, type CompanionMode } from '@/lib/companions';
+import { supabase } from '@/integrations/supabase/client';
 
 export function Onboarding() {
   const [step, setStep] = useState(0);
@@ -9,10 +10,18 @@ export function Onboarding() {
   const [goal, setGoal] = useState('');
   const { setProfile, setActiveMode, createConversation } = useAppStore();
 
-  const handleComplete = (companionId: CompanionMode) => {
+  const handleComplete = async (companionId: CompanionMode) => {
     setProfile({ name, goal, onboarded: true });
     setActiveMode(companionId);
     createConversation(companionId);
+
+    // Save to Supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('profiles').update({ name, goal }).eq('id', user.id);
+      }
+    } catch { /* silent */ }
   };
 
   const pageVariants = {
@@ -143,7 +152,6 @@ export function Onboarding() {
           )}
         </AnimatePresence>
 
-        {/* Step indicators */}
         <div className="flex justify-center gap-2 mt-8">
           {[0, 1, 2].map((s) => (
             <div
