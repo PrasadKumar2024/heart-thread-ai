@@ -58,7 +58,7 @@ function ChatBubble({ message, modeColor }: { message: Message; modeColor: strin
 }
 
 export function ChatMessages() {
-  const { activeConversationId, conversations, isTyping, activeMode } = useAppStore();
+  const { activeConversationId, conversations, isTyping, activeMode, historyLoading } = useAppStore();
   const scrollRef = useRef<HTMLDivElement>(null);
   const companion = getCompanion(activeMode);
   const conversation = conversations.find((c) => c.id === activeConversationId);
@@ -68,6 +68,22 @@ export function ChatMessages() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [conversation?.messages.length, isTyping]);
+
+  if (historyLoading) {
+    return (
+      <div className="flex-1 flex items-center justify-center px-4">
+        <div className="text-center">
+          <motion.div
+            animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.8, 0.4] }}
+            transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
+            className="h-4 w-4 rounded-full mx-auto mb-3"
+            style={{ backgroundColor: companion.colorHex }}
+          />
+          <p className="text-sm text-muted-foreground">Loading your conversations...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!conversation) {
     return (
