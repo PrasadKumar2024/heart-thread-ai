@@ -33,7 +33,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load profile when session exists
+  // Load profile and chat history when session exists
   useEffect(() => {
     if (!session?.user) return;
     supabase
@@ -52,6 +52,8 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           });
         }
       });
+    // Load chat history from database
+    loadChatHistory();
   }, [session?.user?.id, setProfile]);
 
   if (loading) {
