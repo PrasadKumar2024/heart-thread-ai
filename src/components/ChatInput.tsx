@@ -5,7 +5,7 @@ import { useAppStore } from '@/lib/store';
 import { getCompanion } from '@/lib/companions';
 import { streamChat } from '@/lib/chatApi';
 import { getSystemPrompt } from '@/lib/systemPrompts';
-import { supabase } from '@/integrations/supabase/client';
+import { createConversationInDB, saveMessageToDB, updateConversationTitle } from '@/lib/chatHistory';
 import { toast } from 'sonner';
 
 export function ChatInput() {
@@ -29,16 +29,32 @@ export function ChatInput() {
     if (!trimmed) return;
 
     let convId = activeConversationId;
+    let isNewConv = false;
     if (!convId) {
       convId = createConversation(activeMode);
+      isNewConv = true;
     }
 
     addMessage(convId, { role: 'user', content: trimmed });
     setInput('');
     setIsTyping(true);
 
-    // Get conversation messages for context
+    // Save conversation to DB if new
+    if (isNewConv) {
+      await createConversationInDB(convId, activeMode);
+    }
+
+    // Save user message to DB
+    saveMessageToDB(convId, 'user', trimmed, activeMode);
+
+    // Update conversation title if first message
     const conv = useAppStore.getState().conversations.find((c) => c.id === convId);
+    if (conv && conv.messages.length === 1) {
+      const title = trimmed.slice(0, 40) + (trimmed.length > 40 ? '…' : '');
+      updateConversationTitle(convId, title);
+    }
+
+    // Get conversation messages for context
     const history = (conv?.messages || []).map((m) => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
@@ -62,28 +78,10 @@ export function ChatInput() {
           fullContent += chunk;
           updateLastAssistantMessage(convId!, fullContent);
         },
-        onDone: async () => {
+        onDone: () => {
           setIsTyping(false);
-          // Save to Supabase
-          try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-              // Save user message
-              await supabase.from('messages').insert({
-                conversation_id: convId!,
-                user_id: user.id,
-                role: 'user',
-                content: trimmed,
-              });
-              // Save assistant message
-              await supabase.from('messages').insert({
-                conversation_id: convId!,
-                user_id: user.id,
-                role: 'assistant',
-                content: fullContent,
-              });
-            }
-          } catch { /* silent */ }
+          // Save assistant message to DB
+          saveMessageToDB(convId!, 'assistant', fullContent, activeMode);
         },
         onError: (error) => {
           setIsTyping(false);

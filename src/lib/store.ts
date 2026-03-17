@@ -43,6 +43,11 @@ interface AppState {
 
   isTyping: boolean;
   setIsTyping: (typing: boolean) => void;
+
+  historyLoading: boolean;
+  setHistoryLoading: (loading: boolean) => void;
+
+  setConversations: (conversations: Conversation[]) => void;
 }
 
 let msgCounter = 0;
@@ -108,4 +113,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   isTyping: false,
   setIsTyping: (typing) => set({ isTyping: typing }),
+
+  historyLoading: false,
+  setHistoryLoading: (loading) => set({ historyLoading: loading }),
+
+  setConversations: (conversations) => set({ conversations }),
 }));
