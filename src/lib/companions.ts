@@ -1,4 +1,4 @@
-export type CompanionMode = 'kai' | 'luna' | 'nova' | 'rex' | 'sage' | 'eden' | 'custom';
+export type CompanionMode = 'kai' | 'luna' | 'nova' | 'atlas' | 'sage' | 'eden' | 'custom';
 
 export interface Companion {
   id: CompanionMode;
@@ -39,13 +39,13 @@ export const companions: Companion[] = [
     colorHex: '#3D5AFE',
   },
   {
-    id: 'rex',
-    name: 'Rex',
-    emoji: '🔥',
-    subtitle: 'Brutal Honesty',
-    description: 'The honest friend you need but rarely have.',
-    colorVar: 'var(--mode-rex)',
-    colorHex: '#FF6D00',
+    id: 'atlas',
+    name: 'Atlas',
+    emoji: '🤯',
+    subtitle: 'Mind Blown',
+    description: 'Genuinely fascinating facts and ideas that make you stop and think.',
+    colorVar: 'var(--mode-atlas)',
+    colorHex: '#00E676',
   },
   {
     id: 'sage',
@@ -60,7 +60,7 @@ export const companions: Companion[] = [
     id: 'eden',
     name: 'Eden',
     emoji: '🧠',
-    subtitle: 'Life Decisions',
+    subtitle: 'Life Advice',
     description: 'The wisest friend you\'ve ever had access to.',
     colorVar: 'var(--mode-eden)',
     colorHex: '#00BCD4',

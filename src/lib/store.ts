@@ -57,7 +57,15 @@ export const useAppStore = create<AppState>((set, get) => ({
   setProfile: (p) => set((s) => ({ profile: { ...s.profile, ...p } })),
 
   activeMode: 'kai',
-  setActiveMode: (mode) => set({ activeMode: mode }),
+  setActiveMode: (mode) => {
+    // When switching modes, auto-select the most recent conversation for that mode
+    const state = get();
+    const modeConv = state.conversations.find((c) => c.mode === mode);
+    set({
+      activeMode: mode,
+      activeConversationId: modeConv ? modeConv.id : null,
+    });
+  },
 
   conversations: [],
   activeConversationId: null,
