@@ -1,4 +1,4 @@
-export type CompanionMode = 'kai' | 'luna' | 'nova' | 'atlas' | 'sage' | 'eden' | 'custom';
+export type CompanionMode = 'kai' | 'luna' | 'nova' | 'blake' | 'atlas' | 'sage' | 'eden' | 'custom';
 
 export interface Companion {
   id: CompanionMode;
@@ -14,7 +14,7 @@ export const companions: Companion[] = [
   {
     id: 'kai',
     name: 'Kai',
-    emoji: '😄',
+    emoji: '🤝',
     subtitle: 'Best Friend',
     description: 'Your ride-or-die who keeps it real and makes everything lighter.',
     colorVar: 'var(--mode-kai)',
@@ -39,17 +39,26 @@ export const companions: Companion[] = [
     colorHex: '#3D5AFE',
   },
   {
-    id: 'atlas',
-    name: 'Atlas',
-    emoji: '🤯',
-    subtitle: 'Mind Blown',
-    description: 'Genuinely fascinating facts and ideas that make you stop and think.',
-    colorVar: 'var(--mode-atlas)',
-    colorHex: '#00E676',
+    id: 'blake',
+    name: 'Blake',
+    emoji: '💬',
+    subtitle: 'Honest Talk',
+    description: 'The friend who tells you what you actually need to hear.',
+    colorVar: 'var(--mode-blake)',
+    colorHex: '#FF7043',
+  },
+  {
+    id: 'eden',
+    name: 'Sage',
+    emoji: '🧭',
+    subtitle: 'Life Advice',
+    description: 'The wisest, most grounded person you know.',
+    colorVar: 'var(--mode-eden)',
+    colorHex: '#00BCD4',
   },
   {
     id: 'sage',
-    name: 'Sage',
+    name: 'River',
     emoji: '😤',
     subtitle: 'Vent Mode',
     description: 'A deep river of calm that holds space for everything.',
@@ -57,13 +66,13 @@ export const companions: Companion[] = [
     colorHex: '#9C27B0',
   },
   {
-    id: 'eden',
-    name: 'Eden',
-    emoji: '🧠',
-    subtitle: 'Life Advice',
-    description: 'The wisest friend you\'ve ever had access to.',
-    colorVar: 'var(--mode-eden)',
-    colorHex: '#00BCD4',
+    id: 'atlas',
+    name: 'Echo',
+    emoji: '🤯',
+    subtitle: 'Mind Blown',
+    description: 'Shows you something about reality you didn\'t know this morning.',
+    colorVar: 'var(--mode-atlas)',
+    colorHex: '#00E676',
   },
 ];
 
