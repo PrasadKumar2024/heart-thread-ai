@@ -54,11 +54,14 @@ export function ChatInput() {
       updateConversationTitle(convId, title);
     }
 
-    // Get conversation messages for context
-    const history = (conv?.messages || []).map((m) => ({
-      role: m.role as 'user' | 'assistant',
-      content: m.content,
-    }));
+    // Get full conversation messages for context (re-read after adding user message)
+    const updatedConv = useAppStore.getState().conversations.find((c) => c.id === convId);
+    const history = (updatedConv?.messages || [])
+      .filter((m) => m.content) // exclude empty assistant placeholder
+      .map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      }));
 
     const systemPrompt = getSystemPrompt(
       activeMode, profile.name, profile.goal,

@@ -3,20 +3,12 @@ import { useAppStore } from '@/lib/store';
 import { companions, customCompanion, type CompanionMode } from '@/lib/companions';
 
 export function ModePills() {
-  const { activeMode, setActiveMode, createConversation, activeConversationId, conversations } = useAppStore();
+  const { activeMode, setActiveMode, conversations } = useAppStore();
   const allCompanions = [...companions, customCompanion];
 
   const handleModeSwitch = (id: CompanionMode) => {
+    // setActiveMode now auto-selects the correct conversation for this mode
     setActiveMode(id);
-    const current = conversations.find((c) => c.id === activeConversationId);
-    if (!current || current.mode !== id) {
-      const existing = conversations.find((c) => c.mode === id);
-      if (existing) {
-        useAppStore.getState().setActiveConversation(existing.id);
-      } else {
-        createConversation(id);
-      }
-    }
   };
 
   return (
