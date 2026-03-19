@@ -1,4 +1,4 @@
-export type CompanionMode = 'kai' | 'luna' | 'nova' | 'blake' | 'atlas' | 'sage' | 'eden' | 'custom';
+export type CompanionMode = 'kai' | 'luna' | 'nova' | 'blake' | 'sage' | 'eden' | 'custom';
 
 export interface Companion {
   id: CompanionMode;
@@ -40,39 +40,30 @@ export const companions: Companion[] = [
   },
   {
     id: 'blake',
-    name: 'Blake',
-    emoji: '💬',
-    subtitle: 'Honest Talk',
+    name: 'Rex',
+    emoji: '🔥',
+    subtitle: 'Brutal Honesty',
     description: 'The friend who tells you what you actually need to hear.',
     colorVar: 'var(--mode-blake)',
     colorHex: '#FF7043',
   },
   {
-    id: 'eden',
-    name: 'Sage',
-    emoji: '🧭',
-    subtitle: 'Life Advice',
-    description: 'The wisest, most grounded person you know.',
-    colorVar: 'var(--mode-eden)',
-    colorHex: '#00BCD4',
-  },
-  {
     id: 'sage',
-    name: 'River',
+    name: 'Sage',
     emoji: '😤',
     subtitle: 'Vent Mode',
-    description: 'A deep river of calm that holds space for everything.',
+    description: 'A still, present listener who lets you be completely heard.',
     colorVar: 'var(--mode-sage)',
     colorHex: '#9C27B0',
   },
   {
-    id: 'atlas',
-    name: 'Echo',
-    emoji: '🤯',
-    subtitle: 'Mind Blown',
-    description: 'Shows you something about reality you didn\'t know this morning.',
-    colorVar: 'var(--mode-atlas)',
-    colorHex: '#00E676',
+    id: 'eden',
+    name: 'Eden',
+    emoji: '🧭',
+    subtitle: 'Life Decisions',
+    description: 'The wisest friend who helps you find your own answers.',
+    colorVar: 'var(--mode-eden)',
+    colorHex: '#00BCD4',
   },
 ];
 
