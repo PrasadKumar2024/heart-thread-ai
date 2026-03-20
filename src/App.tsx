@@ -10,6 +10,8 @@ import { loadChatHistory } from "@/lib/chatHistory";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import PaymentSuccess from "./pages/PaymentSuccess.tsx";
+import PaymentCancel from "./pages/PaymentCancel.tsx";
 import type { Session } from "@supabase/supabase-js";
 
 const queryClient = new QueryClient();
@@ -52,7 +54,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
           });
         }
       });
-    // Load chat history from database
     loadChatHistory();
   }, [session?.user?.id, setProfile]);
 
@@ -78,6 +79,8 @@ const App = () => (
         <AuthGate>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/cancel" element={<PaymentCancel />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthGate>
