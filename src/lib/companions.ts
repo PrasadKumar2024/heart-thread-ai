@@ -1,4 +1,4 @@
-export type CompanionMode = 'kai' | 'luna' | 'nova' | 'blake' | 'sage' | 'eden' | 'custom';
+export type CompanionMode = 'kai' | 'luna' | 'nova' | 'sage' | 'spark' | 'custom';
 
 export interface Companion {
   id: CompanionMode;
@@ -14,7 +14,7 @@ export const companions: Companion[] = [
   {
     id: 'kai',
     name: 'Kai',
-    emoji: '🤝',
+    emoji: '😄',
     subtitle: 'Best Friend',
     description: 'Your ride-or-die who keeps it real and makes everything lighter.',
     colorVar: 'var(--mode-kai)',
@@ -39,15 +39,6 @@ export const companions: Companion[] = [
     colorHex: '#3D5AFE',
   },
   {
-    id: 'blake',
-    name: 'Rex',
-    emoji: '🔥',
-    subtitle: 'Brutal Honesty',
-    description: 'The friend who tells you what you actually need to hear.',
-    colorVar: 'var(--mode-blake)',
-    colorHex: '#FF7043',
-  },
-  {
     id: 'sage',
     name: 'Sage',
     emoji: '😤',
@@ -57,13 +48,13 @@ export const companions: Companion[] = [
     colorHex: '#9C27B0',
   },
   {
-    id: 'eden',
-    name: 'Eden',
-    emoji: '🧭',
-    subtitle: 'Life Decisions',
-    description: 'The wisest friend who helps you find your own answers.',
-    colorVar: 'var(--mode-eden)',
-    colorHex: '#00BCD4',
+    id: 'spark',
+    name: 'Spark',
+    emoji: '🤯',
+    subtitle: 'Mind Blowing Facts',
+    description: 'Jaw-dropping facts that make you see the world differently.',
+    colorVar: 'var(--mode-spark)',
+    colorHex: '#FFD700',
   },
 ];
 
