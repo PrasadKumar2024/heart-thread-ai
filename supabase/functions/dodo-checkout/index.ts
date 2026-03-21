@@ -57,7 +57,7 @@ serve(async (req) => {
 
     const appUrl = req.headers.get("origin") || "https://solin.app";
 
-    const response = await fetch("https://api.dodopayments.com/subscriptions", {
+    const response = await fetch("https://live.dodopayments.com/subscriptions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${DODO_API_KEY}`,
