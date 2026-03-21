@@ -66,6 +66,9 @@ serve(async (req) => {
       body: JSON.stringify({
         product_id: productId,
         quantity: 1,
+        billing: {
+          country: "IN",
+        },
         customer: {
           email: userEmail,
           name: profile?.name || "User",
@@ -81,7 +84,7 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Dodo API error:", response.status, errorText);
-      return new Response(JSON.stringify({ error: "Payment creation failed" }), {
+      return new Response(JSON.stringify({ error: "Payment creation failed", details: errorText }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
