@@ -65,6 +65,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         product_id: productId,
+        quantity: 1,
         customer: {
           email: userEmail,
           name: profile?.name || "User",
