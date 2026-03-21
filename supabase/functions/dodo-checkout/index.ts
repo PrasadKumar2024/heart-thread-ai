@@ -49,7 +49,6 @@ serve(async (req) => {
 
     const productId = plan === "yearly" ? YEARLY_ID : MONTHLY_ID;
 
-    // Get user name from profile
     const { data: profile } = await supabase
       .from("profiles")
       .select("name")
