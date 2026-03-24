@@ -2,9 +2,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAppStore, type Conversation, type Message } from './store';
 import type { CompanionMode } from './companions';
 
-/**
- * Load all conversations and messages for the current user from the database.
- */
 export async function loadChatHistory(): Promise<void> {
   const store = useAppStore.getState();
   store.setHistoryLoading(true);
@@ -13,7 +10,6 @@ export async function loadChatHistory(): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Fetch all conversations
     const { data: convRows, error: convError } = await supabase
       .from('conversations')
       .select('*')
@@ -30,7 +26,6 @@ export async function loadChatHistory(): Promise<void> {
       return;
     }
 
-    // Fetch all messages for these conversations
     const convIds = convRows.map((c) => c.id);
     const { data: msgRows, error: msgError } = await supabase
       .from('messages')
@@ -43,7 +38,6 @@ export async function loadChatHistory(): Promise<void> {
       return;
     }
 
-    // Group messages by conversation_id
     const msgsByConv = new Map<string, Message[]>();
     for (const m of msgRows || []) {
       const list = msgsByConv.get(m.conversation_id) || [];
@@ -56,20 +50,20 @@ export async function loadChatHistory(): Promise<void> {
       msgsByConv.set(m.conversation_id, list);
     }
 
-    // Build Conversation objects
     const conversations: Conversation[] = convRows.map((c) => ({
       id: c.id,
       mode: c.mode as CompanionMode,
       title: c.title,
       messages: msgsByConv.get(c.id) || [],
       createdAt: new Date(c.created_at),
+      isPinned: (c as any).is_pinned || false,
+      isArchived: (c as any).is_archived || false,
     }));
 
     store.setConversations(conversations);
 
-    // Auto-select the most recent conversation for the active mode
     const activeMode = store.activeMode;
-    const modeConv = conversations.find((c) => c.mode === activeMode);
+    const modeConv = conversations.find((c) => c.mode === activeMode && !c.isArchived);
     if (modeConv) {
       store.setActiveConversation(modeConv.id);
     }
@@ -78,9 +72,6 @@ export async function loadChatHistory(): Promise<void> {
   }
 }
 
-/**
- * Create a conversation in Supabase and return the id.
- */
 export async function createConversationInDB(id: string, mode: CompanionMode): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
@@ -93,16 +84,10 @@ export async function createConversationInDB(id: string, mode: CompanionMode): P
   });
 }
 
-/**
- * Update conversation title in Supabase.
- */
 export async function updateConversationTitle(id: string, title: string): Promise<void> {
   await supabase.from('conversations').update({ title }).eq('id', id);
 }
 
-/**
- * Save a message to the database.
- */
 export async function saveMessageToDB(
   conversationId: string,
   role: 'user' | 'assistant',
@@ -119,4 +104,17 @@ export async function saveMessageToDB(
     content,
     mode,
   });
+}
+
+export async function deleteConversationFromDB(id: string): Promise<void> {
+  await supabase.from('messages').delete().eq('conversation_id', id);
+  await supabase.from('conversations').delete().eq('id', id);
+}
+
+export async function updateConversationPinInDB(id: string, isPinned: boolean): Promise<void> {
+  await supabase.from('conversations').update({ is_pinned: isPinned } as any).eq('id', id);
+}
+
+export async function updateConversationArchiveInDB(id: string, isArchived: boolean): Promise<void> {
+  await supabase.from('conversations').update({ is_archived: isArchived } as any).eq('id', id);
 }

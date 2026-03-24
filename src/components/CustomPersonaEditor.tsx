@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppStore } from '@/lib/store';
 import { toast } from 'sonner';
@@ -47,12 +52,12 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-card border-border sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="font-display text-lg italic text-foreground">Describe your person</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="bg-card border-border max-h-[85vh]">
+        <DrawerHeader>
+          <DrawerTitle className="font-display text-lg italic text-foreground">Your Person</DrawerTitle>
+        </DrawerHeader>
+        <div className="px-4 pb-6 space-y-4">
           <input
             value={personaName}
             onChange={(e) => setPersonaName(e.target.value)}
@@ -62,8 +67,8 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
           <textarea
             value={persona}
             onChange={(e) => setPersona(e.target.value)}
-            placeholder="Example: Your name is Alex. You treat me like a best friend. You are funny and a little sarcastic. You love music and always check on me."
-            rows={6}
+            placeholder={"Describe who you want them to be...\n\nExample:\nYour name is Alex. You're my honest, no-nonsense best friend. You're funny and sarcastic but genuinely care. You love football and always give it to me straight without being harsh."}
+            rows={8}
             className="w-full resize-none rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
           />
           <button
@@ -73,8 +78,11 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
           >
             {saving ? 'Saving...' : 'Save'}
           </button>
+          <p className="text-xs text-muted-foreground text-center">
+            Your person remembers everything you've shared with them.
+          </p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </DrawerContent>
+    </Drawer>
   );
 }

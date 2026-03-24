@@ -1,8 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAppStore } from '@/lib/store';
+import { useAppStore, type Conversation } from '@/lib/store';
 import { companions, customCompanion, getCompanion } from '@/lib/companions';
-import { Search, Plus, X } from 'lucide-react';
+import { Search, Plus, X, Pin, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
+import { ConversationContextMenu } from './ConversationContextMenu';
+import { CustomPersonaEditor } from './CustomPersonaEditor';
 
 export function AppSidebar() {
   const {
@@ -11,10 +13,17 @@ export function AppSidebar() {
     createConversation, profile,
   } = useAppStore();
   const [search, setSearch] = useState('');
+  const [contextMenu, setContextMenu] = useState<{ conv: Conversation; pos: { x: number; y: number } } | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
 
   const filteredConversations = conversations.filter((c) =>
-    c.title.toLowerCase().includes(search.toLowerCase())
+    c.title.toLowerCase().includes(search.toLowerCase()) && !c.isArchived
   );
+
+  const pinnedConvs = filteredConversations.filter((c) => c.isPinned);
+  const unpinnedConvs = filteredConversations.filter((c) => !c.isPinned);
+  const archivedConvs = conversations.filter((c) => c.isArchived && c.title.toLowerCase().includes(search.toLowerCase()));
 
   const handleNewChat = () => {
     createConversation(activeMode);
@@ -22,19 +31,51 @@ export function AppSidebar() {
   };
 
   const handleSelectCompanion = (id: typeof activeMode) => {
-    setActiveMode(id);
-    const existing = conversations.find((c) => c.id === activeConversationId && c.mode === id);
-    if (!existing) {
-      createConversation(id);
+    if (id === 'custom') {
+      setActiveMode(id);
+      const existing = conversations.find((c) => c.mode === id && !c.isArchived);
+      if (!existing) createConversation(id);
+      setSidebarOpen(false);
+      return;
     }
+    setActiveMode(id);
+    const existing = conversations.find((c) => c.mode === id && !c.isArchived);
+    if (!existing) createConversation(id);
     setSidebarOpen(false);
   };
 
-  const allCompanions = [...companions, customCompanion];
+  const handleContextMenu = (e: React.MouseEvent, conv: Conversation) => {
+    e.preventDefault();
+    setContextMenu({ conv, pos: { x: e.clientX, y: e.clientY } });
+  };
+
+  const renderConvButton = (conv: Conversation) => {
+    const companion = getCompanion(conv.mode);
+    const isActive = activeConversationId === conv.id;
+    return (
+      <button
+        key={conv.id}
+        onClick={() => {
+          setActiveConversation(conv.id);
+          setActiveMode(conv.mode);
+          setSidebarOpen(false);
+        }}
+        onContextMenu={(e) => handleContextMenu(e, conv)}
+        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors truncate group"
+        style={{
+          backgroundColor: isActive ? 'hsl(var(--sidebar-accent))' : 'transparent',
+          color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--sidebar-foreground))',
+        }}
+      >
+        <span className="text-sm shrink-0">{companion.emoji}</span>
+        <span className="truncate flex-1 text-left">{conv.title}</span>
+        {conv.isPinned && <Pin className="h-3 w-3 shrink-0 text-muted-foreground" />}
+      </button>
+    );
+  };
 
   return (
     <>
-      {/* Overlay for mobile */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
@@ -47,7 +88,6 @@ export function AppSidebar() {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <motion.aside
         initial={false}
         animate={{ x: sidebarOpen ? 0 : '-100%' }}
@@ -92,11 +132,11 @@ export function AppSidebar() {
           </button>
         </div>
 
-        {/* Companions */}
+        {/* Companions (5 only) */}
         <div className="px-3 py-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Companions</p>
           <div className="space-y-0.5">
-            {allCompanions.map((c) => {
+            {companions.map((c) => {
               const isActive = activeMode === c.id;
               return (
                 <button
@@ -120,36 +160,74 @@ export function AppSidebar() {
           </div>
         </div>
 
+        {/* My Person section */}
+        <div className="px-3 py-2 border-t border-border">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">My Person</p>
+          <button
+            onClick={() => {
+              handleSelectCompanion('custom');
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300"
+            style={{
+              backgroundColor: activeMode === 'custom' ? `${customCompanion.colorHex}15` : 'transparent',
+              borderLeft: activeMode === 'custom' ? `2px solid ${customCompanion.colorHex}` : '2px solid transparent',
+              color: activeMode === 'custom' ? customCompanion.colorHex : 'hsl(var(--sidebar-foreground))',
+            }}
+          >
+            <span className="text-lg">{customCompanion.emoji}</span>
+            <div className="text-left flex-1">
+              <span className="block font-medium">
+                {profile.customPersonaName || 'Create your person'}
+              </span>
+              <span className="block text-xs opacity-60">Custom companion</span>
+            </div>
+          </button>
+          <button
+            onClick={() => setPersonaEditorOpen(true)}
+            className="w-full mt-1 rounded-xl bg-secondary/50 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-left"
+          >
+            ✏️ {profile.customPersona ? 'Edit your person' : 'Set up your person'}
+          </button>
+        </div>
+
         {/* Conversations */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
+          {/* Pinned */}
+          {pinnedConvs.length > 0 && (
+            <>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">📌 Pinned</p>
+              <div className="space-y-0.5 mb-3">
+                {pinnedConvs.map(renderConvButton)}
+              </div>
+            </>
+          )}
+
+          {/* Recent */}
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Recent</p>
           <div className="space-y-0.5">
-            {filteredConversations.map((conv) => {
-              const companion = getCompanion(conv.mode);
-              const isActive = activeConversationId === conv.id;
-              return (
-                <button
-                  key={conv.id}
-                  onClick={() => {
-                    setActiveConversation(conv.id);
-                    setActiveMode(conv.mode);
-                    setSidebarOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm transition-colors truncate"
-                  style={{
-                    backgroundColor: isActive ? 'hsl(var(--sidebar-accent))' : 'transparent',
-                    color: isActive ? 'hsl(var(--foreground))' : 'hsl(var(--sidebar-foreground))',
-                  }}
-                >
-                  <span className="text-sm shrink-0">{companion.emoji}</span>
-                  <span className="truncate">{conv.title}</span>
-                </button>
-              );
-            })}
-            {filteredConversations.length === 0 && (
+            {unpinnedConvs.map(renderConvButton)}
+            {unpinnedConvs.length === 0 && pinnedConvs.length === 0 && (
               <p className="text-xs text-muted-foreground px-1">No conversations yet.</p>
             )}
           </div>
+
+          {/* Archived */}
+          {archivedConvs.length > 0 && (
+            <div className="mt-4">
+              <button
+                onClick={() => setShowArchived(!showArchived)}
+                className="flex items-center gap-1 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1 hover:text-foreground transition-colors"
+              >
+                {showArchived ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                Archived ({archivedConvs.length})
+              </button>
+              {showArchived && (
+                <div className="space-y-0.5">
+                  {archivedConvs.map(renderConvButton)}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* User */}
@@ -164,6 +242,23 @@ export function AppSidebar() {
           </div>
         )}
       </motion.aside>
+
+      {/* Context menu */}
+      <AnimatePresence>
+        {contextMenu && (
+          <>
+            <div className="fixed inset-0 z-[199]" onClick={() => setContextMenu(null)} />
+            <ConversationContextMenu
+              conversation={contextMenu.conv}
+              position={contextMenu.pos}
+              onClose={() => setContextMenu(null)}
+            />
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Persona editor drawer */}
+      <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
     </>
   );
 }

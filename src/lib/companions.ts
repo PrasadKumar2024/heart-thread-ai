@@ -24,7 +24,7 @@ export const companions: Companion[] = [
     id: 'luna',
     name: 'Luna',
     emoji: '💔',
-    subtitle: 'Heartbreak',
+    subtitle: 'Sad Moments',
     description: 'A gentle presence when your heart needs holding.',
     colorVar: 'var(--mode-luna)',
     colorHex: '#E91E8C',

@@ -14,6 +14,8 @@ export interface Conversation {
   title: string;
   messages: Message[];
   createdAt: Date;
+  isPinned?: boolean;
+  isArchived?: boolean;
 }
 
 interface UserProfile {
@@ -37,6 +39,10 @@ interface AppState {
   createConversation: (mode: CompanionMode) => string;
   addMessage: (conversationId: string, message: Omit<Message, 'id' | 'timestamp'>) => void;
   updateLastAssistantMessage: (conversationId: string, content: string) => void;
+  renameConversation: (id: string, title: string) => void;
+  deleteConversation: (id: string) => void;
+  togglePinConversation: (id: string) => void;
+  toggleArchiveConversation: (id: string) => void;
 
   sidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
@@ -58,9 +64,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   activeMode: 'kai',
   setActiveMode: (mode) => {
-    // When switching modes, auto-select the most recent conversation for that mode
     const state = get();
-    const modeConv = state.conversations.find((c) => c.mode === mode);
+    const modeConv = state.conversations.find((c) => c.mode === mode && !c.isArchived);
     set({
       activeMode: mode,
       activeConversationId: modeConv ? modeConv.id : null,
@@ -75,7 +80,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const id = crypto.randomUUID();
     set((s) => ({
       conversations: [
-        { id, mode, title: 'New conversation', messages: [], createdAt: new Date() },
+        { id, mode, title: 'New conversation', messages: [], createdAt: new Date(), isPinned: false, isArchived: false },
         ...s.conversations,
       ],
       activeConversationId: id,
@@ -114,6 +119,45 @@ export const useAppStore = create<AppState>((set, get) => ({
         return { ...c, messages: msgs };
       }),
     }));
+  },
+
+  renameConversation: (id, title) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id === id ? { ...c, title } : c
+      ),
+    }));
+  },
+
+  deleteConversation: (id) => {
+    set((s) => {
+      const newConvs = s.conversations.filter((c) => c.id !== id);
+      return {
+        conversations: newConvs,
+        activeConversationId: s.activeConversationId === id ? null : s.activeConversationId,
+      };
+    });
+  },
+
+  togglePinConversation: (id) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) =>
+        c.id === id ? { ...c, isPinned: !c.isPinned } : c
+      ),
+    }));
+  },
+
+  toggleArchiveConversation: (id) => {
+    set((s) => {
+      const conv = s.conversations.find((c) => c.id === id);
+      const newArchived = !conv?.isArchived;
+      return {
+        conversations: s.conversations.map((c) =>
+          c.id === id ? { ...c, isArchived: newArchived } : c
+        ),
+        activeConversationId: s.activeConversationId === id && newArchived ? null : s.activeConversationId,
+      };
+    });
   },
 
   sidebarOpen: false,
