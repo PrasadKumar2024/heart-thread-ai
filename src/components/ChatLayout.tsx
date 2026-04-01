@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Menu, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useAppStore } from '@/lib/store';
