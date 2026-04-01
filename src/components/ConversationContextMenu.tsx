@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Pencil, Pin, Archive, Trash2, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Pencil, Trash2 } from 'lucide-react';
 import { useAppStore, type Conversation } from '@/lib/store';
-import { updateConversationTitle, deleteConversationFromDB, updateConversationPinInDB, updateConversationArchiveInDB } from '@/lib/chatHistory';
+import { updateConversationTitle, deleteConversationFromDB } from '@/lib/chatHistory';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function ConversationContextMenu({ conversation, position, onClose }: Props) {
-  const { renameConversation, deleteConversation, togglePinConversation, toggleArchiveConversation } = useAppStore();
+  const { renameConversation, deleteConversation, createConversation, activeMode } = useAppStore();
   const [renaming, setRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState(conversation.title);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -30,33 +30,24 @@ export function ConversationContextMenu({ conversation, position, onClose }: Pro
     setRenaming(false);
   };
 
-  const handlePin = () => {
-    togglePinConversation(conversation.id);
-    updateConversationPinInDB(conversation.id, !conversation.isPinned);
-    onClose();
-  };
-
-  const handleArchive = () => {
-    toggleArchiveConversation(conversation.id);
-    updateConversationArchiveInDB(conversation.id, !conversation.isArchived);
-    onClose();
-  };
-
   const handleDelete = () => {
     setConfirmDelete(true);
     onClose();
   };
 
   const confirmDeleteAction = () => {
+    const store = useAppStore.getState();
+    const wasActive = store.activeConversationId === conversation.id;
     deleteConversation(conversation.id);
     deleteConversationFromDB(conversation.id);
     setConfirmDelete(false);
+    if (wasActive) {
+      createConversation(activeMode);
+    }
   };
 
   const menuItems = [
     { icon: Pencil, label: 'Rename', action: handleRename },
-    { icon: Pin, label: conversation.isPinned ? 'Unpin' : 'Pin chat', action: handlePin },
-    { icon: Archive, label: conversation.isArchived ? 'Unarchive' : 'Archive', action: handleArchive },
     { icon: Trash2, label: 'Delete', action: handleDelete, danger: true },
   ];
 
@@ -81,7 +72,7 @@ export function ConversationContextMenu({ conversation, position, onClose }: Pro
         ))}
       </motion.div>
 
-      {/* Rename inline dialog */}
+      {/* Rename dialog */}
       <Dialog open={renaming} onOpenChange={setRenaming}>
         <DialogContent className="bg-card border-border sm:max-w-sm">
           <DialogHeader>
@@ -107,7 +98,7 @@ export function ConversationContextMenu({ conversation, position, onClose }: Pro
       <Dialog open={confirmDelete} onOpenChange={setConfirmDelete}>
         <DialogContent className="bg-card border-border sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-foreground text-sm">Delete this conversation?</DialogTitle>
+            <DialogTitle className="text-foreground text-sm">Delete conversation?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">This cannot be undone.</p>
           <div className="flex gap-2">

@@ -56,8 +56,8 @@ export async function loadChatHistory(): Promise<void> {
       title: c.title,
       messages: msgsByConv.get(c.id) || [],
       createdAt: new Date(c.created_at),
-      isPinned: (c as any).is_pinned || false,
-      isArchived: (c as any).is_archived || false,
+      isPinned: c.is_pinned || false,
+      isArchived: c.is_archived || false,
     }));
 
     store.setConversations(conversations);
@@ -112,9 +112,9 @@ export async function deleteConversationFromDB(id: string): Promise<void> {
 }
 
 export async function updateConversationPinInDB(id: string, isPinned: boolean): Promise<void> {
-  await supabase.from('conversations').update({ is_pinned: isPinned } as any).eq('id', id);
+  await supabase.from('conversations').update({ is_pinned: isPinned }).eq('id', id);
 }
 
 export async function updateConversationArchiveInDB(id: string, isArchived: boolean): Promise<void> {
-  await supabase.from('conversations').update({ is_archived: isArchived } as any).eq('id', id);
+  await supabase.from('conversations').update({ is_archived: isArchived }).eq('id', id);
 }

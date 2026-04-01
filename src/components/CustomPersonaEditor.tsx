@@ -42,7 +42,7 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
       if (error) throw error;
 
       setProfile({ customPersona: persona, customPersonaName: personaName });
-      toast.success('Persona saved!');
+      toast.success('Your person has been updated ✨');
       onOpenChange(false);
     } catch (err: any) {
       toast.error(err.message);
@@ -55,9 +55,12 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="bg-card border-border max-h-[85vh]">
         <DrawerHeader>
-          <DrawerTitle className="font-display text-lg italic text-foreground">Your Person</DrawerTitle>
+          <DrawerTitle className="font-display text-lg italic text-foreground">Personalise Your Person</DrawerTitle>
         </DrawerHeader>
         <div className="px-4 pb-6 space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Describe who you want them to be. The more detail you give, the more real they feel.
+          </p>
           <input
             value={personaName}
             onChange={(e) => setPersonaName(e.target.value)}
@@ -67,7 +70,7 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
           <textarea
             value={persona}
             onChange={(e) => setPersona(e.target.value)}
-            placeholder={"Describe who you want them to be...\n\nExample:\nYour name is Alex. You're my honest, no-nonsense best friend. You're funny and sarcastic but genuinely care. You love football and always give it to me straight without being harsh."}
+            placeholder={"Example: Your name is Alex.\nYou're my honest best friend.\nYou're funny and sarcastic\nbut genuinely caring.\nYou give it to me straight\nwithout being harsh."}
             rows={8}
             className="w-full resize-none rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
           />
@@ -76,7 +79,7 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
             disabled={saving}
             className="w-full rounded-xl bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Saving...' : 'Save & Apply'}
           </button>
           <p className="text-xs text-muted-foreground text-center">
             Your person remembers everything you've shared with them.
