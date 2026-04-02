@@ -200,8 +200,6 @@ export function AppSidebar() {
         )}
       </AnimatePresence>
 
-      {/* Persona editor */}
-      <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
     </>
   );
 }
