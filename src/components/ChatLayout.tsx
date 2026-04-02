@@ -20,7 +20,6 @@ function DesktopSidebar() {
   } = useAppStore();
   const [search, setSearch] = useState('');
   const [contextMenu, setContextMenu] = useState<{ conv: Conversation; pos: { x: number; y: number } } | null>(null);
-  const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
 
   const filteredConversations = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
