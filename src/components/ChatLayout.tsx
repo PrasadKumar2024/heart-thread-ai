@@ -178,8 +178,6 @@ function DesktopSidebar() {
         </>
       )}
 
-      {/* Persona editor */}
-      <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
     </>
   );
 }
