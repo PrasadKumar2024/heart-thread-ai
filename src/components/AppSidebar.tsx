@@ -160,21 +160,7 @@ export function AppSidebar() {
             }}
           >
             <span className="text-lg">{customCompanion.emoji}</span>
-            <div className="text-left flex-1">
-              <span className="block font-medium">
-                {profile.customPersonaName || 'Create your person'}
-              </span>
-              <span className="block text-xs opacity-60">Custom companion</span>
-            </div>
-          </button>
-          <button
-            onClick={() => {
-              handleSelectCompanion('custom');
-              setPersonaEditorOpen(true);
-            }}
-            className="w-full mt-1 rounded-xl bg-secondary/50 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-left"
-          >
-            ✏️ {profile.customPersona ? 'Edit your person' : 'Set up your person'}
+            <span className="font-medium">My Person</span>
           </button>
         </div>
 
