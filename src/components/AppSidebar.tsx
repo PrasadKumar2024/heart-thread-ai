@@ -4,7 +4,6 @@ import { companions, customCompanion, getCompanion } from '@/lib/companions';
 import { Search, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
-import { CustomPersonaEditor } from './CustomPersonaEditor';
 
 export function AppSidebar() {
   const {
@@ -14,7 +13,6 @@ export function AppSidebar() {
   } = useAppStore();
   const [search, setSearch] = useState('');
   const [contextMenu, setContextMenu] = useState<{ conv: Conversation; pos: { x: number; y: number } } | null>(null);
-  const [personaEditorOpen, setPersonaEditorOpen] = useState(false);
 
   const filteredConversations = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
@@ -160,21 +158,7 @@ export function AppSidebar() {
             }}
           >
             <span className="text-lg">{customCompanion.emoji}</span>
-            <div className="text-left flex-1">
-              <span className="block font-medium">
-                {profile.customPersonaName || 'Create your person'}
-              </span>
-              <span className="block text-xs opacity-60">Custom companion</span>
-            </div>
-          </button>
-          <button
-            onClick={() => {
-              handleSelectCompanion('custom');
-              setPersonaEditorOpen(true);
-            }}
-            className="w-full mt-1 rounded-xl bg-secondary/50 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-left"
-          >
-            ✏️ {profile.customPersona ? 'Edit your person' : 'Set up your person'}
+            <span className="font-medium">My Person</span>
           </button>
         </div>
 
@@ -216,8 +200,6 @@ export function AppSidebar() {
         )}
       </AnimatePresence>
 
-      {/* Persona editor */}
-      <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
     </>
   );
 }
