@@ -4,7 +4,6 @@ import { companions, customCompanion, getCompanion } from '@/lib/companions';
 import { Search, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
-import { CustomPersonaEditor } from './CustomPersonaEditor';
 
 export function AppSidebar() {
   const {
