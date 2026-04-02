@@ -85,7 +85,15 @@ export async function createConversationInDB(id: string, mode: CompanionMode): P
 }
 
 export async function updateConversationTitle(id: string, title: string): Promise<void> {
-  await supabase.from('conversations').update({ title }).eq('id', id);
+  const { error } = await supabase
+    .from('conversations')
+    .update({ title })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Failed to update conversation title:', error);
+    throw error;
+  }
 }
 
 export async function saveMessageToDB(
@@ -107,8 +115,32 @@ export async function saveMessageToDB(
 }
 
 export async function deleteConversationFromDB(id: string): Promise<void> {
-  await supabase.from('messages').delete().eq('conversation_id', id);
-  await supabase.from('conversations').delete().eq('id', id);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    throw new Error('User not authenticated');
+  }
+
+  const { error: messagesError } = await supabase
+    .from('messages')
+    .delete()
+    .eq('conversation_id', id)
+    .eq('user_id', user.id);
+
+  if (messagesError) {
+    console.error('Failed to delete conversation messages:', messagesError);
+    throw messagesError;
+  }
+
+  const { error: conversationError } = await supabase
+    .from('conversations')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (conversationError) {
+    console.error('Failed to delete conversation:', conversationError);
+    throw conversationError;
+  }
 }
 
 export async function updateConversationPinInDB(id: string, isPinned: boolean): Promise<void> {
