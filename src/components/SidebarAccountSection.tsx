@@ -142,8 +142,8 @@ export function SidebarAccountSection() {
             }}
             className="flex items-center gap-3 rounded-2xl border border-border bg-secondary/70 px-3 py-3"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card font-display text-sm italic text-primary">
-              {avatarLetter}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+              <UserIcon className="h-5 w-5 text-muted-foreground" />
             </div>
 
             <div className="min-w-0 flex-1 text-left">
@@ -172,13 +172,18 @@ export function SidebarAccountSection() {
             <DialogTitle className="text-foreground">Profile</DialogTitle>
           </DialogHeader>
 
-          {isLoadingInfo ? (
+           {isLoadingInfo ? (
             <p className="text-sm text-muted-foreground">Loading profile...</p>
           ) : (
             <div className="space-y-3">
+              <div className="flex flex-col items-center gap-2 pb-2">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+                  <UserIcon className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium text-foreground">{accountInfo?.name || '—'}</p>
+                <p className="text-xs text-muted-foreground">{accountInfo?.email || '—'}</p>
+              </div>
               {[
-                { label: 'Name', value: accountInfo?.name || '—' },
-                { label: 'Email', value: accountInfo?.email || '—' },
                 { label: 'Join date', value: accountInfo?.joinedAt || '—' },
                 { label: 'Messages used today', value: String(accountInfo?.messagesToday ?? 0) },
                 { label: 'Premium status', value: accountInfo?.premiumStatus || 'Free' },
