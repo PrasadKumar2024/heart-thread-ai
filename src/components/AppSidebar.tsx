@@ -4,12 +4,13 @@ import { companions, customCompanion, getCompanion } from '@/lib/companions';
 import { Search, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
+import { SidebarAccountSection } from './SidebarAccountSection';
 
 export function AppSidebar() {
   const {
     sidebarOpen, setSidebarOpen, activeMode, setActiveMode,
     conversations, activeConversationId, setActiveConversation,
-    createConversation, profile,
+    createConversation,
   } = useAppStore();
   const [search, setSearch] = useState('');
   const [contextMenu, setContextMenu] = useState<{ conv: Conversation; pos: { x: number; y: number } } | null>(null);
@@ -67,7 +68,7 @@ export function AppSidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -76,8 +77,8 @@ export function AppSidebar() {
       <motion.aside
         initial={false}
         animate={{ x: sidebarOpen ? 0 : '-100%' }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className="fixed left-0 top-0 bottom-0 z-50 w-[280px] flex flex-col md:relative md:translate-x-0 md:z-auto"
+        transition={{ duration: 0.2, ease: 'easeInOut' }}
+        className="fixed inset-y-0 left-0 z-50 flex w-[80vw] max-w-sm flex-col"
         style={{
           backgroundColor: 'hsl(var(--sidebar-background))',
           borderRight: '1px solid hsl(var(--sidebar-border))',
@@ -90,7 +91,7 @@ export function AppSidebar() {
           </h1>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="rounded-lg p-1.5 text-muted-foreground hover:text-foreground transition-colors md:hidden"
+            className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:text-foreground"
           >
             <X className="h-5 w-5" />
           </button>
@@ -173,17 +174,7 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* User */}
-        {profile.name && (
-          <div className="p-3 border-t border-border">
-            <div className="flex items-center gap-3 rounded-xl px-3 py-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary font-display text-sm italic">
-                {profile.name.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-sm text-foreground">{profile.name}</span>
-            </div>
-          </div>
-        )}
+        <SidebarAccountSection />
       </motion.aside>
 
       {/* Context menu */}

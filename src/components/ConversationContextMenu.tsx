@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function ConversationContextMenu({ conversation, position, onClose }: Props) {
-  const { renameConversation, deleteConversation, createConversation, activeMode } = useAppStore();
+  const { renameConversation, deleteConversation } = useAppStore();
   const [renaming, setRenaming] = useState(false);
   const [newTitle, setNewTitle] = useState(conversation.title);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -51,16 +51,10 @@ export function ConversationContextMenu({ conversation, position, onClose }: Pro
   const confirmDeleteAction = async () => {
     if (isDeleting) return;
 
-    const store = useAppStore.getState();
-    const wasActive = store.activeConversationId === conversation.id;
-
     try {
       setIsDeleting(true);
       await deleteConversationFromDB(conversation.id);
       deleteConversation(conversation.id);
-      if (wasActive) {
-        createConversation(activeMode);
-      }
       setConfirmDelete(false);
       onClose();
     } catch {

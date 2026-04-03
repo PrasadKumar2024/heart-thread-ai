@@ -54,6 +54,7 @@ interface AppState {
   setHistoryLoading: (loading: boolean) => void;
 
   setConversations: (conversations: Conversation[]) => void;
+  resetAppState: () => void;
 }
 
 let msgCounter = 0;
@@ -132,9 +133,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   deleteConversation: (id) => {
     set((s) => {
       const newConvs = s.conversations.filter((c) => c.id !== id);
+
+      if (s.activeConversationId !== id) {
+        return {
+          conversations: newConvs,
+        };
+      }
+
+      const fallbackConversation = newConvs[0] ?? null;
+
       return {
         conversations: newConvs,
-        activeConversationId: s.activeConversationId === id ? null : s.activeConversationId,
+        activeConversationId: fallbackConversation?.id ?? null,
+        activeMode: fallbackConversation?.mode ?? s.activeMode,
       };
     });
   },
@@ -170,4 +181,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   setHistoryLoading: (loading) => set({ historyLoading: loading }),
 
   setConversations: (conversations) => set({ conversations }),
+
+  resetAppState: () => {
+    msgCounter = 0;
+    set({
+      profile: { name: '', goal: '', onboarded: false },
+      activeMode: 'kai',
+      conversations: [],
+      activeConversationId: null,
+      sidebarOpen: false,
+      isTyping: false,
+      historyLoading: false,
+    });
+  },
 }));
