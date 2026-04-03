@@ -142,8 +142,8 @@ export function SidebarAccountSection() {
             }}
             className="flex items-center gap-3 rounded-2xl border border-border bg-secondary/70 px-3 py-3"
           >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-card font-display text-sm italic text-primary">
-              {avatarLetter}
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+              <UserIcon className="h-5 w-5 text-muted-foreground" />
             </div>
 
             <div className="min-w-0 flex-1 text-left">

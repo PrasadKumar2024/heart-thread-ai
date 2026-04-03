@@ -70,7 +70,7 @@ export function CustomPersonaEditor({ open, onOpenChange }: Props) {
           <textarea
             value={persona}
             onChange={(e) => setPersona(e.target.value)}
-            placeholder={"Example: Your name is Alex.\nYou're my honest best friend.\nYou're funny and sarcastic\nbut genuinely caring.\nYou give it to me straight\nwithout being harsh."}
+            placeholder="Describe who you want your person to be..."
             rows={8}
             className="w-full resize-none rounded-xl bg-secondary px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
           />

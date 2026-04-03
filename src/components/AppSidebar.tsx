@@ -1,10 +1,49 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore, type Conversation } from '@/lib/store';
 import { companions, customCompanion, getCompanion } from '@/lib/companions';
-import { Search, Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { Search, Plus, X, Sparkles } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
 import { SidebarAccountSection } from './SidebarAccountSection';
+import { PaywallModal } from './PaywallModal';
+import { supabase } from '@/integrations/supabase/client';
+
+function UpgradeBanner() {
+  const [isPremium, setIsPremium] = useState<boolean | null>(null);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single();
+      setIsPremium(data?.is_premium ?? false);
+    })();
+  }, []);
+
+  if (isPremium !== false) return null;
+
+  return (
+    <>
+      <div className="px-3 py-2">
+        <div className="rounded-2xl border border-[#FFD700]/30 bg-secondary/80 p-3 space-y-2">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#FFD700]" />
+            <span className="text-sm font-medium text-foreground">Upgrade to Premium</span>
+          </div>
+          <p className="text-xs text-muted-foreground">Unlimited conversations</p>
+          <button
+            onClick={() => setPaywallOpen(true)}
+            className="w-full rounded-xl bg-[#FFD700] py-2 text-xs font-bold text-background transition-opacity hover:opacity-90"
+          >
+            Upgrade Now
+          </button>
+        </div>
+      </div>
+      <PaywallModal open={paywallOpen} onClose={() => setPaywallOpen(false)} />
+    </>
+  );
+}
 
 export function AppSidebar() {
   const {
