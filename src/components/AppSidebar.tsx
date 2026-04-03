@@ -118,8 +118,25 @@ export function AppSidebar() {
           </button>
         </div>
 
-        {/* Companions */}
+        {/* My Person */}
         <div className="px-3 py-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">My Person</p>
+          <button
+            onClick={() => handleSelectCompanion('custom')}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300"
+            style={{
+              backgroundColor: activeMode === 'custom' ? `${customCompanion.colorHex}15` : 'transparent',
+              borderLeft: activeMode === 'custom' ? `2px solid ${customCompanion.colorHex}` : '2px solid transparent',
+              color: activeMode === 'custom' ? customCompanion.colorHex : 'hsl(var(--sidebar-foreground))',
+            }}
+          >
+            <span className="text-lg">{customCompanion.emoji}</span>
+            <span className="font-medium">My Person</span>
+          </button>
+        </div>
+
+        {/* Companions */}
+        <div className="px-3 py-2 border-t border-border">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Companions</p>
           <div className="space-y-0.5">
             {companions.map((c) => {
@@ -146,22 +163,8 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* My Person */}
-        <div className="px-3 py-2 border-t border-border">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">My Person</p>
-          <button
-            onClick={() => handleSelectCompanion('custom')}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300"
-            style={{
-              backgroundColor: activeMode === 'custom' ? `${customCompanion.colorHex}15` : 'transparent',
-              borderLeft: activeMode === 'custom' ? `2px solid ${customCompanion.colorHex}` : '2px solid transparent',
-              color: activeMode === 'custom' ? customCompanion.colorHex : 'hsl(var(--sidebar-foreground))',
-            }}
-          >
-            <span className="text-lg">{customCompanion.emoji}</span>
-            <span className="font-medium">My Person</span>
-          </button>
-        </div>
+        {/* Upgrade Banner — free users only */}
+        <UpgradeBanner />
 
         {/* Conversations */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
