@@ -1,49 +1,10 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore, type Conversation } from '@/lib/store';
 import { companions, customCompanion, getCompanion } from '@/lib/companions';
-import { Search, Plus, X, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, Plus, X } from 'lucide-react';
+import { useState } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
 import { SidebarAccountSection } from './SidebarAccountSection';
-import { PaywallModal } from './PaywallModal';
-import { supabase } from '@/integrations/supabase/client';
-
-function UpgradeBanner() {
-  const [isPremium, setIsPremium] = useState<boolean | null>(null);
-  const [paywallOpen, setPaywallOpen] = useState(false);
-
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase.from('profiles').select('is_premium').eq('id', user.id).single();
-      setIsPremium(data?.is_premium ?? false);
-    })();
-  }, []);
-
-  if (isPremium !== false) return null;
-
-  return (
-    <>
-      <div className="px-3 py-2">
-        <div className="rounded-2xl border border-[#FFD700]/30 bg-secondary/80 p-3 space-y-2">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#FFD700]" />
-            <span className="text-sm font-medium text-foreground">Upgrade to Premium</span>
-          </div>
-          <p className="text-xs text-muted-foreground">Unlimited conversations</p>
-          <button
-            onClick={() => setPaywallOpen(true)}
-            className="w-full rounded-xl bg-[#FFD700] py-2 text-xs font-bold text-background transition-opacity hover:opacity-90"
-          >
-            Upgrade Now
-          </button>
-        </div>
-      </div>
-      <PaywallModal open={paywallOpen} onClose={() => setPaywallOpen(false)} />
-    </>
-  );
-}
 
 export function AppSidebar() {
   const {
@@ -157,25 +118,8 @@ export function AppSidebar() {
           </button>
         </div>
 
-        {/* My Person */}
-        <div className="px-3 py-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">My Person</p>
-          <button
-            onClick={() => handleSelectCompanion('custom')}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300"
-            style={{
-              backgroundColor: activeMode === 'custom' ? `${customCompanion.colorHex}15` : 'transparent',
-              borderLeft: activeMode === 'custom' ? `2px solid ${customCompanion.colorHex}` : '2px solid transparent',
-              color: activeMode === 'custom' ? customCompanion.colorHex : 'hsl(var(--sidebar-foreground))',
-            }}
-          >
-            <span className="text-lg">{customCompanion.emoji}</span>
-            <span className="font-medium">My Person</span>
-          </button>
-        </div>
-
         {/* Companions */}
-        <div className="px-3 py-2 border-t border-border">
+        <div className="px-3 py-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Companions</p>
           <div className="space-y-0.5">
             {companions.map((c) => {
@@ -202,8 +146,22 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Upgrade Banner — free users only */}
-        <UpgradeBanner />
+        {/* My Person */}
+        <div className="px-3 py-2 border-t border-border">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">My Person</p>
+          <button
+            onClick={() => handleSelectCompanion('custom')}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-300"
+            style={{
+              backgroundColor: activeMode === 'custom' ? `${customCompanion.colorHex}15` : 'transparent',
+              borderLeft: activeMode === 'custom' ? `2px solid ${customCompanion.colorHex}` : '2px solid transparent',
+              color: activeMode === 'custom' ? customCompanion.colorHex : 'hsl(var(--sidebar-foreground))',
+            }}
+          >
+            <span className="text-lg">{customCompanion.emoji}</span>
+            <span className="font-medium">My Person</span>
+          </button>
+        </div>
 
         {/* Conversations */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
