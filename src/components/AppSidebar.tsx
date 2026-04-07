@@ -5,6 +5,7 @@ import { Search, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
 import { SidebarAccountSection } from './SidebarAccountSection';
+import solinLogo from '@/assets/solin-logo.png';
 
 export function AppSidebar() {
   const {
@@ -86,9 +87,10 @@ export function AppSidebar() {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 pb-2">
-          <h1 className="font-display text-2xl tracking-tight text-foreground">
-            <span className="italic">solin</span>
-          </h1>
+          <div className="flex items-center gap-2">
+            <img src={solinLogo} alt="SOLIN" className="w-6 h-6 rounded-md" />
+            <span className="text-lg font-light tracking-[3px]" style={{ color: '#F5A623' }}>SOLIN</span>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="rounded-lg p-1.5 text-muted-foreground transition-colors hover:text-foreground"

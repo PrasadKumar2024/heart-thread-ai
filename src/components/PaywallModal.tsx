@@ -3,6 +3,7 @@ import { X, Sparkles, Brain, BookOpen, Mail, Zap, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import solinLogo from '@/assets/solin-logo.png';
 
 interface PaywallModalProps {
   open: boolean;
@@ -72,7 +73,7 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
             </button>
 
             <div className="text-center mb-6">
-              <p className="text-3xl mb-2">✨</p>
+              <img src={solinLogo} alt="SOLIN" className="w-12 h-12 rounded-xl mx-auto mb-3" />
               <h2 className="text-xl font-semibold text-foreground">You've reached your daily limit</h2>
               <p className="text-sm text-muted-foreground mt-1">Upgrade to keep the conversation going</p>
             </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
+import solinLogo from '@/assets/solin-logo.png';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -51,9 +52,14 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm space-y-8">
-        <div className="text-center">
-          <h1 className="font-display text-4xl italic text-foreground">solin</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Someone who actually gets you</p>
+        <div className="text-center flex flex-col items-center">
+          <img src={solinLogo} alt="SOLIN" className="w-20 h-20 rounded-2xl mb-4" />
+          <h1 className="text-2xl font-light tracking-[4px]" style={{ color: '#F5A623' }}>
+            SOLIN
+          </h1>
+          <p className="mt-2 text-sm" style={{ color: '#A0A0B0' }}>
+            Your companion. Always here.
+          </p>
         </div>
 
         <form onSubmit={handleEmailAuth} className="space-y-4">
