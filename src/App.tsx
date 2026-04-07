@@ -13,12 +13,42 @@ import NotFound from "./pages/NotFound.tsx";
 import PaymentSuccess from "./pages/PaymentSuccess.tsx";
 import PaymentCancel from "./pages/PaymentCancel.tsx";
 import type { Session } from "@supabase/supabase-js";
+import solinLogo from '@/assets/solin-logo.png';
 
 const queryClient = new QueryClient();
+
+function SplashScreen({ onDone }: { onDone: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onDone, 1500);
+    return () => clearTimeout(timer);
+  }, [onDone]);
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4">
+      <img src={solinLogo} alt="SOLIN" className="w-[120px] h-[120px] rounded-3xl" />
+      <h1 className="text-2xl font-light tracking-[4px]" style={{ color: '#F5A623' }}>
+        SOLIN
+      </h1>
+      <div className="flex gap-1.5 mt-2">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{
+              backgroundColor: '#F5A623',
+              animationDelay: `${i * 0.3}s`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const setProfile = useAppStore((s) => s.setProfile);
 
   useEffect(() => {
@@ -35,7 +65,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Load profile and chat history when session exists
   useEffect(() => {
     if (!session?.user) return;
     supabase
@@ -57,10 +86,14 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     loadChatHistory();
   }, [session?.user?.id, setProfile]);
 
+  if (showSplash) {
+    return <SplashScreen onDone={() => setShowSplash(false)} />;
+  }
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="font-display text-2xl italic text-primary animate-pulse">solin</div>
+        <img src={solinLogo} alt="SOLIN" className="w-16 h-16 rounded-2xl animate-pulse" />
       </div>
     );
   }
