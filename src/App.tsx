@@ -12,6 +12,8 @@ import Auth from "./pages/Auth.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import PaymentSuccess from "./pages/PaymentSuccess.tsx";
 import PaymentCancel from "./pages/PaymentCancel.tsx";
+import Privacy from "./pages/Privacy.tsx";
+import Terms from "./pages/Terms.tsx";
 import type { Session } from "@supabase/supabase-js";
 import solinLogo from '@/assets/solin-logo.png';
 
@@ -114,6 +116,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/payment/success" element={<PaymentSuccess />} />
             <Route path="/payment/cancel" element={<PaymentCancel />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthGate>
