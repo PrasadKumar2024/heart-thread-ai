@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { MoreVertical, LogOut, User as UserIcon } from 'lucide-react';
+import { MoreVertical, LogOut, User as UserIcon, Shield, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppStore } from '@/lib/store';
@@ -188,6 +188,17 @@ export function SidebarAccountSection() {
                   <p className="mt-1 text-sm text-foreground">{item.value}</p>
                 </div>
               ))}
+
+              <div className="flex gap-2 pt-1">
+                <a href="/privacy" className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors flex-1">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  Privacy Policy
+                </a>
+                <a href="/terms" className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors flex-1">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                  Terms
+                </a>
+              </div>
             </div>
           )}
         </DialogContent>
