@@ -126,9 +126,9 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
               <p className="text-[10px] text-muted-foreground">Secure payment by Dodo Payments · Cancel anytime from your profile</p>
               <p className="text-[10px] text-muted-foreground">
                 By upgrading you agree to our{' '}
-                <a href="/terms" className="underline hover:text-foreground">Terms of Service</a>
+                <a href="/terms-of-service" className="underline hover:text-foreground">Terms of Service</a>
                 {' '}and{' '}
-                <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>
+                <a href="/privacy-policy" className="underline hover:text-foreground">Privacy Policy</a>
               </p>
               <button onClick={onClose} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
                 Maybe later

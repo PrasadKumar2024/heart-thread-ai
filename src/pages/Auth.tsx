@@ -121,9 +121,9 @@ export default function Auth() {
 
         <p className="text-center text-[10px] text-muted-foreground">
           By continuing you agree to our{' '}
-          <a href="/terms" className="underline hover:text-foreground">Terms of Service</a>
+          <a href="/terms-of-service" className="underline hover:text-foreground">Terms of Service</a>
           {' '}and{' '}
-          <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>
+          <a href="/privacy-policy" className="underline hover:text-foreground">Privacy Policy</a>
         </p>
       </div>
     </div>
