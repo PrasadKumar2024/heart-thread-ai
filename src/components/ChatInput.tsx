@@ -58,6 +58,7 @@ export function ChatInput() {
   }, [input]);
 
   const incrementMessageCount = async () => {
+    if (isPremium) return;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     const today = new Date().toISOString().split('T')[0];

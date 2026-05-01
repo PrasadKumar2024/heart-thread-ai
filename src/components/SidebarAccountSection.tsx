@@ -139,7 +139,12 @@ export function SidebarAccountSection() {
               {avatarLetter}
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-sm text-foreground">{displayName}</p>
+              <p className="truncate text-sm text-foreground flex items-center gap-1">
+                <span className="truncate">{displayName}</span>
+                {accountInfo?.premiumStatus === 'Premium' && (
+                  <span title="Premium" style={{ color: '#F5A623' }}>✨</span>
+                )}
+              </p>
               <p className="truncate text-xs text-muted-foreground">{displayEmail}</p>
             </div>
             <button type="button" onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
@@ -166,13 +171,20 @@ export function SidebarAccountSection() {
                 { label: 'Email', value: accountInfo?.email || '—' },
                 { label: 'Join date', value: accountInfo?.joinedAt || '—' },
                 { label: 'Messages used today', value: String(accountInfo?.messagesToday ?? 0) },
-                { label: 'Premium status', value: accountInfo?.premiumStatus || 'Free' },
               ].map((item) => (
                 <div key={item.label} className="rounded-xl bg-secondary px-3 py-2">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground">{item.label}</p>
                   <p className="mt-1 text-sm text-foreground">{item.value}</p>
                 </div>
               ))}
+              <div className="rounded-xl bg-secondary px-3 py-2">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground">Plan</p>
+                {accountInfo?.premiumStatus === 'Premium' ? (
+                  <p className="mt-1 text-sm font-semibold" style={{ color: '#F5A623' }}>Premium Member ✨</p>
+                ) : (
+                  <p className="mt-1 text-sm text-foreground">Free</p>
+                )}
+              </div>
 
               <div className="flex gap-2 pt-1">
                 <a href="/privacy-policy" className="flex items-center gap-1.5 rounded-xl bg-secondary px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors flex-1">
