@@ -91,7 +91,6 @@ export type Database = {
           custom_persona: string | null
           custom_persona_name: string | null
           goal: string
-          has_sent_first_message: boolean
           id: string
           is_premium: boolean
           last_message_date: string | null
@@ -104,7 +103,6 @@ export type Database = {
           custom_persona?: string | null
           custom_persona_name?: string | null
           goal?: string
-          has_sent_first_message?: boolean
           id: string
           is_premium?: boolean
           last_message_date?: string | null
@@ -117,7 +115,6 @@ export type Database = {
           custom_persona?: string | null
           custom_persona_name?: string | null
           goal?: string
-          has_sent_first_message?: boolean
           id?: string
           is_premium?: boolean
           last_message_date?: string | null

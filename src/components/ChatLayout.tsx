@@ -8,7 +8,6 @@ import { ModePills } from '@/components/ModePills';
 import { ChatMessages } from '@/components/ChatMessages';
 import { ChatInput } from '@/components/ChatInput';
 import { CustomPersonaEditor } from './CustomPersonaEditor';
-import { ModeTransition } from './ModeTransition';
 
 export function ChatLayout() {
   const { activeMode, setSidebarOpen } = useAppStore();
@@ -18,7 +17,6 @@ export function ChatLayout() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
-      <ModeTransition />
       <motion.div
         animate={{ backgroundColor: `${companion.colorHex}05` }}
         transition={{ duration: 1 }}
@@ -44,6 +42,7 @@ export function ChatLayout() {
               <p className="text-xs text-muted-foreground">{companion.subtitle}</p>
             </div>
           </div>
+          {/* Personalise button — only in custom mode */}
           {activeMode === 'custom' && (
             <button
               onClick={() => setPersonaEditorOpen(true)}
@@ -66,6 +65,7 @@ export function ChatLayout() {
         <ChatInput />
       </div>
 
+      {/* Persona editor from chat header */}
       <CustomPersonaEditor open={personaEditorOpen} onOpenChange={setPersonaEditorOpen} />
     </div>
   );

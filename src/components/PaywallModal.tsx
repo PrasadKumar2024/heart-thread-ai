@@ -41,12 +41,12 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
   };
 
   const benefits = [
-    { icon: Sparkles, text: 'Unlimited messages every day' },
-    { icon: Brain, text: 'Full memory across all companions' },
-    { icon: BookOpen, text: 'Complete conversation history' },
-    { icon: Mail, text: 'Weekly personal letter from companions' },
-    { icon: Zap, text: 'Endless Spark discoveries' },
-    { icon: User, text: 'Custom companion — fully yours' },
+    { icon: Sparkles, text: 'Unlimited conversations every day' },
+    { icon: Brain, text: 'Full memory — companions remember everything' },
+    { icon: BookOpen, text: 'Full conversation history forever' },
+    { icon: Mail, text: 'Weekly personal reflection every Sunday' },
+    { icon: Zap, text: 'Unlimited Spark — endless discoveries' },
+    { icon: User, text: 'Create unlimited custom companions' },
   ];
 
   return (
@@ -73,9 +73,9 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
             </button>
 
             <div className="text-center mb-6">
-              <img src={solinLogo} alt="SOLIN" className="w-12 h-12 rounded-2xl mx-auto mb-3" />
-              <h2 className="text-xl font-semibold text-foreground">Unlock Unlimited SOLIN ✨</h2>
-              <p className="text-sm text-muted-foreground mt-1">Your companions remember everything. No daily limits. Ever.</p>
+              <img src={solinLogo} alt="SOLIN" className="w-12 h-12 rounded-xl mx-auto mb-3" />
+              <h2 className="text-xl font-semibold text-foreground">You've reached your daily limit</h2>
+              <p className="text-sm text-muted-foreground mt-1">Upgrade to keep the conversation going</p>
             </div>
 
             <div className="space-y-2.5 mb-6">
@@ -92,13 +92,13 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
               <button
                 onClick={() => handleCheckout('monthly')}
                 disabled={!!loading}
-                className="flex flex-col items-center rounded-2xl border border-border bg-secondary p-4 transition-all hover:border-[#F5A623]/40 active:scale-[0.97] disabled:opacity-60"
+                className="flex flex-col items-center rounded-2xl border border-border bg-secondary p-4 transition-all hover:border-[#FFD700]/40 active:scale-[0.97]"
               >
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Monthly</span>
                 <span className="text-2xl font-bold text-foreground mt-1">$9.99</span>
                 <span className="text-xs text-muted-foreground">/month</span>
                 <span className="mt-3 w-full rounded-xl bg-foreground/10 py-2 text-xs font-medium text-foreground">
-                  {loading === 'monthly' ? 'Processing... ⏳' : 'Start Monthly'}
+                  {loading === 'monthly' ? 'Loading…' : 'Start Monthly'}
                 </span>
                 <span className="text-[10px] text-muted-foreground mt-1.5">Cancel anytime</span>
               </button>
@@ -107,18 +107,18 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
               <button
                 onClick={() => handleCheckout('yearly')}
                 disabled={!!loading}
-                className="relative flex flex-col items-center rounded-2xl border-2 border-[#F5A623]/50 bg-[#F5A623]/5 p-4 transition-all hover:border-[#F5A623]/70 active:scale-[0.97] disabled:opacity-60"
+                className="relative flex flex-col items-center rounded-2xl border-2 border-[#FFD700]/50 bg-[#FFD700]/5 p-4 transition-all hover:border-[#FFD700]/70 active:scale-[0.97]"
               >
-                <span className="absolute -top-2.5 rounded-full bg-[#F5A623] px-2.5 py-0.5 text-[10px] font-bold text-background uppercase">
-                  Best Value 🔥
+                <span className="absolute -top-2.5 rounded-full bg-[#FFD700] px-2.5 py-0.5 text-[10px] font-bold text-background uppercase">
+                  🔥 Best Value
                 </span>
                 <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Yearly</span>
                 <span className="text-2xl font-bold text-foreground mt-1">$89.99</span>
                 <span className="text-xs text-muted-foreground">/year</span>
-                <span className="mt-3 w-full rounded-xl bg-[#F5A623] py-2 text-xs font-bold text-background">
-                  {loading === 'yearly' ? 'Processing... ⏳' : 'Start Yearly'}
+                <span className="mt-3 w-full rounded-xl bg-[#FFD700] py-2 text-xs font-bold text-background">
+                  {loading === 'yearly' ? 'Loading…' : 'Start Yearly'}
                 </span>
-                <span className="text-[10px] text-[#F5A623] mt-1.5">Save $29.89 — 2 months free</span>
+                <span className="text-[10px] text-[#FFD700] mt-1.5">Save $29.89 — 2 months free</span>
               </button>
             </div>
 
