@@ -41,12 +41,12 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
   };
 
   const benefits = [
-    { icon: Sparkles, text: 'Unlimited conversations every day' },
-    { icon: Brain, text: 'Full memory — companions remember everything' },
-    { icon: BookOpen, text: 'Full conversation history forever' },
-    { icon: Mail, text: 'Weekly personal reflection every Sunday' },
-    { icon: Zap, text: 'Unlimited Spark — endless discoveries' },
-    { icon: User, text: 'Create unlimited custom companions' },
+    { icon: Sparkles, text: 'Unlimited messages every day' },
+    { icon: Brain, text: 'Full memory across all companions' },
+    { icon: BookOpen, text: 'Complete conversation history' },
+    { icon: Mail, text: 'Weekly personal letter from companions' },
+    { icon: Zap, text: 'Endless Spark discoveries' },
+    { icon: User, text: 'Custom companion — fully yours' },
   ];
 
   return (
