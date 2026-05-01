@@ -188,6 +188,39 @@ export function AppSidebar() {
           </button>
         </div>
 
+        {/* Upgrade Banner (free users only) */}
+        {!isPremium && (
+          <div className="px-3 py-2">
+            <div
+              className="rounded-xl p-3"
+              style={{ backgroundColor: '#1A1035', border: '1px solid #F5A623' }}
+            >
+              <div className="flex items-center gap-1.5" style={{ color: '#F5A623', fontSize: '14px', fontWeight: 700 }}>
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Upgrade to Premium</span>
+              </div>
+              <p style={{ color: '#A0A0B0', fontSize: '12px', marginTop: '4px' }}>
+                Unlimited conversations
+              </p>
+              <button
+                onClick={() => setPaywallOpen(true)}
+                className="w-full transition-transform active:scale-[0.97]"
+                style={{
+                  backgroundColor: '#F5A623',
+                  color: '#0D0D1A',
+                  borderRadius: '8px',
+                  marginTop: '10px',
+                  fontWeight: 700,
+                  fontSize: '13px',
+                  padding: '8px 12px',
+                }}
+              >
+                Upgrade Now →
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Conversations */}
         <div className="flex-1 overflow-y-auto px-3 py-2">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">Recent</p>
