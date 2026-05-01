@@ -1,9 +1,40 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore, type Message } from '@/lib/store';
 import { getCompanion } from '@/lib/companions';
-import { useEffect, useRef } from 'react';
+import { detectEmotion } from '@/lib/emotionDetect';
+import { useEffect, useRef, useState } from 'react';
 
-function TypingIndicator({ color }: { color: string }) {
+const TYPING_MESSAGES: Record<string, { default: string; sad: string; excited: string }> = {
+  kai: { default: 'Kai is thinking... 💛', sad: 'Kai feels that... 💛', excited: 'Kai is hyped! 💛' },
+  luna: { default: 'Luna is sitting with that... 💙', sad: 'Luna is with you... 💙', excited: 'Luna is listening... 💙' },
+  nova: { default: 'Nova is here with you... 🌙', sad: 'Nova is here with you... 🌙', excited: 'Nova is here with you... 🌙' },
+  sage: { default: 'Sage is taking that in... 🌿', sad: 'Sage is taking that in... 🌿', excited: 'Sage is taking that in... 🌿' },
+  spark: { default: 'Spark is diving in... ⚡', sad: 'Spark is diving in... ⚡', excited: 'Spark loves this! ⚡' },
+};
+
+const TAGLINES: Record<string, string> = {
+  kai: 'Your ride-or-die. Always real.',
+  luna: 'Here for your hardest moments.',
+  nova: 'Quiet company. Always here.',
+  sage: 'Ready to listen. No judgment.',
+  spark: 'Ready to blow your mind.',
+  custom: 'Your person. Always here.',
+};
+
+function TypingIndicator({ color, mode, lastUserMsg }: { color: string; mode: string; lastUserMsg?: string }) {
+  const emotion = lastUserMsg ? detectEmotion(lastUserMsg) : 'neutral';
+  const msgs = TYPING_MESSAGES[mode];
+  const customName = useAppStore.getState().profile.customPersonaName;
+
+  let text: string;
+  if (mode === 'custom') {
+    text = `${customName || 'Your person'} is thinking...`;
+  } else if (msgs) {
+    text = msgs[emotion === 'neutral' ? 'default' : emotion];
+  } else {
+    text = 'Thinking...';
+  }
+
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <motion.div
@@ -12,28 +43,66 @@ function TypingIndicator({ color }: { color: string }) {
         className="h-3 w-3 rounded-full"
         style={{ backgroundColor: color }}
       />
-      <span className="text-xs text-muted-foreground">
-        {getCompanion(useAppStore.getState().activeMode).name} is thinking...
-      </span>
+      <motion.span
+        animate={{ opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 2, ease: 'easeInOut', repeat: Infinity }}
+        className="text-xs text-muted-foreground"
+      >
+        {text}
+      </motion.span>
     </div>
   );
 }
 
-function ChatBubble({ message, modeColor }: { message: Message; modeColor: string }) {
+function DeliveredText({ companionName }: { companionName: string }) {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(false), 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.span
+          initial={{ opacity: 0.8 }}
+          animate={{ opacity: 0.6 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-[10px] text-muted-foreground px-1"
+        >
+          delivered to {companionName} ✓
+        </motion.span>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function ChatBubble({
+  message,
+  modeColor,
+  isLastUser,
+  companionName,
+}: {
+  message: Message;
+  modeColor: string;
+  isLastUser: boolean;
+  companionName: string;
+}) {
   const isUser = message.role === 'user';
-  const companion = getCompanion(useAppStore.getState().activeMode);
 
   return (
     <motion.div
-      initial={{ x: isUser ? 20 : -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+      initial={{ x: isUser ? 20 : -20, opacity: 0, scale: 0.97 }}
+      animate={{ x: 0, opacity: 1, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22, duration: 0.2 }}
       className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
     >
       <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
         {!isUser && (
           <span className="text-xs font-display italic px-1" style={{ color: modeColor }}>
-            {companion.name}
+            {companionName}
           </span>
         )}
         <div
@@ -49,9 +118,13 @@ function ChatBubble({ message, modeColor }: { message: Message; modeColor: strin
         >
           <p className="text-foreground">{message.content}</p>
         </div>
-        <span className="text-[10px] text-muted-foreground px-1">
-          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </span>
+        {isUser && isLastUser ? (
+          <DeliveredText companionName={companionName} />
+        ) : (
+          <span className="text-[10px] text-muted-foreground px-1">
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        )}
       </div>
     </motion.div>
   );
@@ -68,6 +141,20 @@ export function ChatMessages() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [conversation?.messages.length, isTyping]);
+
+  // Find last user message for emotion-aware typing
+  const lastUserMsg = conversation?.messages
+    .filter((m) => m.role === 'user')
+    .pop()?.content;
+
+  // Find last user message index for "delivered" indicator
+  const lastUserMsgId = (() => {
+    if (!conversation) return null;
+    for (let i = conversation.messages.length - 1; i >= 0; i--) {
+      if (conversation.messages[i].role === 'user') return conversation.messages[i].id;
+    }
+    return null;
+  })();
 
   if (historyLoading) {
     return (
@@ -94,11 +181,18 @@ export function ChatMessages() {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-6xl block mb-4">{companion.emoji}</span>
-            <h2 className="font-display text-3xl italic tracking-tight mb-2 text-foreground">
+            {/* Breathing emoji */}
+            <motion.span
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ duration: 3, ease: 'easeInOut', repeat: Infinity }}
+              className="text-6xl block mb-4"
+            >
+              {companion.emoji}
+            </motion.span>
+            <h2 className="font-display text-3xl italic tracking-tight mb-2" style={{ color: companion.colorHex }}>
               {companion.name}
             </h2>
-            <p className="text-muted-foreground text-sm">{companion.description}</p>
+            <p className="text-muted-foreground text-sm">{TAGLINES[activeMode] || companion.description}</p>
             <p className="text-muted-foreground/60 text-xs mt-4">say anything to start...</p>
           </motion.div>
         </div>
@@ -111,10 +205,16 @@ export function ChatMessages() {
       <div className="mx-auto max-w-3xl">
         <AnimatePresence mode="popLayout">
           {conversation.messages.map((msg) => (
-            <ChatBubble key={msg.id} message={msg} modeColor={companion.colorHex} />
+            <ChatBubble
+              key={msg.id}
+              message={msg}
+              modeColor={companion.colorHex}
+              isLastUser={msg.id === lastUserMsgId}
+              companionName={companion.name}
+            />
           ))}
         </AnimatePresence>
-        {isTyping && <TypingIndicator color={companion.colorHex} />}
+        {isTyping && <TypingIndicator color={companion.colorHex} mode={activeMode} lastUserMsg={lastUserMsg} />}
       </div>
     </div>
   );

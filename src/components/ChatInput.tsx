@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import { getCompanion } from '@/lib/companions';
@@ -9,27 +9,31 @@ import { createConversationInDB, saveMessageToDB, updateConversationTitle } from
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { PaywallModal } from './PaywallModal';
+import { GoldParticles } from './GoldParticles';
+import { getSendEmoji } from '@/lib/emotionDetect';
 
 export function ChatInput() {
   const [input, setInput] = useState('');
   const [messagesToday, setMessagesToday] = useState(0);
   const [isPremium, setIsPremium] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [hasSentFirst, setHasSentFirst] = useState(true);
+  const [showParticles, setShowParticles] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const {
     activeMode, activeConversationId, createConversation,
     addMessage, updateLastAssistantMessage, setIsTyping, profile,
   } = useAppStore();
   const companion = getCompanion(activeMode);
+  const sendEmoji = getSendEmoji(input);
 
-  // Load message count and premium status
   useEffect(() => {
     const loadStatus = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase
         .from('profiles')
-        .select('messages_today, last_message_date, is_premium')
+        .select('messages_today, last_message_date, is_premium, has_sent_first_message')
         .eq('id', user.id)
         .single();
       if (data) {
@@ -40,6 +44,7 @@ export function ChatInput() {
           setMessagesToday(0);
         }
         setIsPremium(data.is_premium || false);
+        setHasSentFirst(data.has_sent_first_message || false);
       }
     };
     loadStatus();
@@ -79,7 +84,6 @@ export function ChatInput() {
     const trimmed = input.trim();
     if (!trimmed) return;
 
-    // Check free limit
     if (!isPremium && messagesToday >= 20) {
       setPaywallOpen(true);
       return;
@@ -92,43 +96,36 @@ export function ChatInput() {
       isNewConv = true;
     }
 
+    const isFirstEver = !hasSentFirst;
+
     addMessage(convId, { role: 'user', content: trimmed });
     setInput('');
     setIsTyping(true);
 
-    // Increment message counter
     await incrementMessageCount();
 
-    // Save conversation to DB if new
     if (isNewConv) {
       await createConversationInDB(convId, activeMode);
     }
 
-    // Save user message to DB
     saveMessageToDB(convId, 'user', trimmed, activeMode);
 
-    // Update conversation title if first message
     const conv = useAppStore.getState().conversations.find((c) => c.id === convId);
     if (conv && conv.messages.length === 1) {
       const title = trimmed.slice(0, 40) + (trimmed.length > 40 ? '…' : '');
       updateConversationTitle(convId, title);
     }
 
-    // Get full conversation messages for context
     const updatedConv = useAppStore.getState().conversations.find((c) => c.id === convId);
     const history = (updatedConv?.messages || [])
       .filter((m) => m.content)
-      .map((m) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      }));
+      .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
 
     const systemPrompt = getSystemPrompt(
       activeMode, profile.name, profile.goal,
       profile.customPersona, profile.customPersonaName
     );
 
-    // Add empty assistant message for streaming
     addMessage(convId, { role: 'assistant', content: '' });
 
     let fullContent = '';
@@ -141,9 +138,20 @@ export function ChatInput() {
           fullContent += chunk;
           updateLastAssistantMessage(convId!, fullContent);
         },
-        onDone: () => {
+        onDone: async () => {
           setIsTyping(false);
           saveMessageToDB(convId!, 'assistant', fullContent, activeMode);
+
+          // First message celebration
+          if (isFirstEver) {
+            setHasSentFirst(true);
+            setShowParticles(true);
+            setTimeout(() => setShowParticles(false), 2000);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              await supabase.from('profiles').update({ has_sent_first_message: true }).eq('id', user.id);
+            }
+          }
         },
         onError: (error) => {
           setIsTyping(false);
@@ -167,6 +175,7 @@ export function ChatInput() {
 
   return (
     <>
+      <GoldParticles show={showParticles} />
       <div className="border-t border-border bg-secondary/50 backdrop-blur-xl">
         <div className="mx-auto max-w-3xl px-4 py-3">
           <div className="flex items-end gap-3">
@@ -184,16 +193,38 @@ export function ChatInput() {
               whileTap={{ scale: 0.9 }}
               onClick={handleSend}
               disabled={!input.trim()}
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 disabled:opacity-30"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-all duration-300 disabled:opacity-30 relative overflow-hidden"
               style={{
                 backgroundColor: input.trim() ? companion.colorHex : 'hsl(var(--muted))',
                 color: input.trim() ? 'hsl(var(--background))' : 'hsl(var(--muted-foreground))',
               }}
             >
-              <ArrowUp className="h-5 w-5" />
+              <AnimatePresence mode="wait">
+                {sendEmoji && input.trim() ? (
+                  <motion.span
+                    key={sendEmoji}
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-sm"
+                  >
+                    {sendEmoji}
+                  </motion.span>
+                ) : (
+                  <motion.div
+                    key="arrow"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ArrowUp className="h-5 w-5" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.button>
           </div>
-          {/* Message counter for free users */}
           {!isPremium && (
             <p className={`text-center text-[11px] mt-2 ${remaining <= 2 ? 'text-[#FFD700]' : 'text-muted-foreground'}`}>
               {remaining <= 0

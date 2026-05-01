@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS has_sent_first_message boolean NOT NULL DEFAULT false;
