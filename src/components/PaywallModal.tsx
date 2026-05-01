@@ -73,9 +73,9 @@ export function PaywallModal({ open, onClose }: PaywallModalProps) {
             </button>
 
             <div className="text-center mb-6">
-              <img src={solinLogo} alt="SOLIN" className="w-12 h-12 rounded-xl mx-auto mb-3" />
-              <h2 className="text-xl font-semibold text-foreground">You've reached your daily limit</h2>
-              <p className="text-sm text-muted-foreground mt-1">Upgrade to keep the conversation going</p>
+              <img src={solinLogo} alt="SOLIN" className="w-12 h-12 rounded-2xl mx-auto mb-3" />
+              <h2 className="text-xl font-semibold text-foreground">Unlock Unlimited SOLIN ✨</h2>
+              <p className="text-sm text-muted-foreground mt-1">Your companions remember everything. No daily limits. Ever.</p>
             </div>
 
             <div className="space-y-2.5 mb-6">
