@@ -19,6 +19,25 @@ export function AppSidebar() {
   } = useAppStore();
   const [search, setSearch] = useState('');
   const [contextMenu, setContextMenu] = useState<{ conv: Conversation; pos: { x: number; y: number } } | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [paywallOpen, setPaywallOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_premium')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (!cancelled) setIsPremium(!!data?.is_premium);
+    };
+    load();
+    const { data: sub } = supabase.auth.onAuthStateChange(() => load());
+    return () => { cancelled = true; sub.subscription.unsubscribe(); };
+  }, []);
 
   const filteredConversations = conversations.filter((c) =>
     c.title.toLowerCase().includes(search.toLowerCase())
