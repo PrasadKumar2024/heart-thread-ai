@@ -5,6 +5,10 @@ import { Search, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 import { ConversationContextMenu } from './ConversationContextMenu';
 import { SidebarAccountSection } from './SidebarAccountSection';
+import { PaywallModal } from './PaywallModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from 'react';
+import { Sparkles } from 'lucide-react';
 import solinLogo from '@/assets/solin-logo.png';
 
 export function AppSidebar() {
