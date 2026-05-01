@@ -139,7 +139,12 @@ export function SidebarAccountSection() {
               {avatarLetter}
             </div>
             <div className="min-w-0 flex-1 text-left">
-              <p className="truncate text-sm text-foreground">{displayName}</p>
+              <p className="truncate text-sm text-foreground flex items-center gap-1">
+                <span className="truncate">{displayName}</span>
+                {accountInfo?.premiumStatus === 'Premium' && (
+                  <span title="Premium" style={{ color: '#F5A623' }}>✨</span>
+                )}
+              </p>
               <p className="truncate text-xs text-muted-foreground">{displayEmail}</p>
             </div>
             <button type="button" onClick={(e) => { e.stopPropagation(); setMenuOpen((o) => !o); }}
