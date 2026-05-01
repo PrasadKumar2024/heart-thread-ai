@@ -118,13 +118,6 @@ export default function Auth() {
             {isLogin ? 'Sign up' : 'Log in'}
           </button>
         </p>
-
-        <p className="text-center text-[10px] text-muted-foreground">
-          By continuing you agree to our{' '}
-          <a href="/terms-of-service" className="underline hover:text-foreground">Terms of Service</a>
-          {' '}and{' '}
-          <a href="/privacy-policy" className="underline hover:text-foreground">Privacy Policy</a>
-        </p>
       </div>
     </div>
   );
