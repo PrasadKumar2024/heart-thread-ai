@@ -249,6 +249,7 @@ export function AppSidebar() {
         )}
       </AnimatePresence>
 
+      <PaywallModal open={paywallOpen} onClose={() => setPaywallOpen(false)} />
     </>
   );
 }
