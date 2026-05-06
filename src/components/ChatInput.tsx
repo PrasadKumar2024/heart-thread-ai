@@ -156,11 +156,13 @@ export function ChatInput() {
         },
         onError: (error) => {
           setIsTyping(false);
+          updateLastAssistantMessage(convId!, error);
           toast.error(error);
         },
       });
     } catch (err) {
       setIsTyping(false);
+      updateLastAssistantMessage(convId!, 'Something went wrong. Try again.');
       toast.error('Failed to connect to AI');
     }
   };
