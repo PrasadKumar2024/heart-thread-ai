@@ -162,6 +162,7 @@ export function ChatInput() {
       });
     } catch (err) {
       setIsTyping(false);
+      updateLastAssistantMessage(convId!, 'Something went wrong. Try again.');
       toast.error('Failed to connect to AI');
     }
   };
