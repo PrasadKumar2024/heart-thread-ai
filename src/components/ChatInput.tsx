@@ -156,6 +156,7 @@ export function ChatInput() {
         },
         onError: (error) => {
           setIsTyping(false);
+          updateLastAssistantMessage(convId!, error);
           toast.error(error);
         },
       });
