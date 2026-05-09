@@ -201,7 +201,32 @@ export function AppSidebar() {
           </button>
         </div>
 
-        {/* Upgrade Banner (free users only) */}
+        {/* Letters notification */}
+        {unreadLetter && (
+          <div className="px-3 py-2">
+            <motion.div
+              animate={{ boxShadow: ['0 0 0px rgba(245,166,35,0.3)', '0 0 16px rgba(245,166,35,0.7)', '0 0 0px rgba(245,166,35,0.3)'] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="rounded-xl p-3"
+              style={{ backgroundColor: '#1A1035', border: '1px solid #F5A623' }}
+            >
+              <div style={{ color: '#F5A623', fontSize: 14, fontWeight: 600 }}>
+                💌 You have a letter
+              </div>
+              <div style={{ color: '#A0A0B0', fontSize: 12, marginTop: 2 }}>
+                from {unreadLetter.companion_name}
+              </div>
+              <button
+                onClick={() => { navigate('/letters'); setSidebarOpen(false); }}
+                className="mt-2 text-sm font-semibold"
+                style={{ color: '#F5A623' }}
+              >
+                Read it →
+              </button>
+            </motion.div>
+          </div>
+        )}
+
         {!isPremium && (
           <div className="px-3 py-2">
             <div
