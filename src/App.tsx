@@ -16,6 +16,7 @@ import Privacy from "./pages/Privacy.tsx";
 import Terms from "./pages/Terms.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
+import Letters from "./pages/Letters.tsx";
 import type { Session } from "@supabase/supabase-js";
 import solinLogo from '@/assets/solin-logo.png';
 
@@ -122,6 +123,7 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/letters" element={<Letters />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthGate>
