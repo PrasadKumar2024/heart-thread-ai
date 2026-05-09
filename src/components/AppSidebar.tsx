@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppStore, type Conversation } from '@/lib/store';
 import { companions, customCompanion, getCompanion } from '@/lib/companions';
-import { Search, Plus, X } from 'lucide-react';
+import { Search, Plus, X, Mail } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ConversationContextMenu } from './ConversationContextMenu';
 import { SidebarAccountSection } from './SidebarAccountSection';
 import { PaywallModal } from './PaywallModal';
@@ -21,6 +22,8 @@ export function AppSidebar() {
   const [contextMenu, setContextMenu] = useState<{ conv: Conversation; pos: { x: number; y: number } } | null>(null);
   const [isPremium, setIsPremium] = useState(false);
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [unreadLetter, setUnreadLetter] = useState<{ companion_name: string } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -33,6 +36,16 @@ export function AppSidebar() {
         .eq('id', user.id)
         .maybeSingle();
       if (!cancelled) setIsPremium(!!data?.is_premium);
+
+      const { data: letter } = await supabase
+        .from('letters')
+        .select('companion_name')
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled) setUnreadLetter(letter || null);
     };
     load();
     const { data: sub } = supabase.auth.onAuthStateChange(() => load());
