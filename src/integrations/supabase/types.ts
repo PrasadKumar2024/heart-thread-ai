@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      letters: {
+        Row: {
+          companion_mode: string
+          companion_name: string
+          created_at: string
+          id: string
+          is_read: boolean
+          letter_content: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          companion_mode: string
+          companion_name: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          letter_content: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          companion_mode?: string
+          companion_name?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          letter_content?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
