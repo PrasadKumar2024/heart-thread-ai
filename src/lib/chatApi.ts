@@ -19,9 +19,24 @@ export async function streamChat({
 }) {
   const controller = new AbortController();
   let gotAnyDelta = false;
+  let settled = false;
   const timeoutId = setTimeout(() => {
     controller.abort();
   }, timeoutMs);
+
+  const finishError = (message: string) => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeoutId);
+    onError(message);
+  };
+
+  const finishDone = () => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timeoutId);
+    onDone();
+  };
 
   try {
     const resp = await fetch(CHAT_URL, {
@@ -36,14 +51,12 @@ export async function streamChat({
 
     if (!resp.ok) {
       const data = await resp.json().catch(() => ({ error: 'Unknown error' }));
-      clearTimeout(timeoutId);
-      onError(data.error || `Something went wrong. Try again.`);
+      finishError(data.error || `Something went wrong. Try again.`);
       return;
     }
 
     if (!resp.body) {
-      clearTimeout(timeoutId);
-      onError('Something went wrong. Try again.');
+      finishError('Something went wrong. Try again.');
       return;
     }
 
@@ -74,6 +87,11 @@ export async function streamChat({
 
         try {
           const parsed = JSON.parse(jsonStr);
+          if (parsed.error) {
+            finishError('Something went wrong. Try again.');
+            streamDone = true;
+            break;
+          }
           const content = parsed.choices?.[0]?.delta?.content as string | undefined;
           if (content) {
             gotAnyDelta = true;
@@ -96,6 +114,10 @@ export async function streamChat({
         if (jsonStr === '[DONE]') continue;
         try {
           const parsed = JSON.parse(jsonStr);
+          if (parsed.error) {
+            finishError('Something went wrong. Try again.');
+            return;
+          }
           const content = parsed.choices?.[0]?.delta?.content as string | undefined;
           if (content) {
             gotAnyDelta = true;
@@ -105,18 +127,16 @@ export async function streamChat({
       }
     }
 
-    clearTimeout(timeoutId);
     if (!gotAnyDelta) {
-      onError('Something went wrong. Try again.');
+      finishError('Something went wrong. Try again.');
       return;
     }
-    onDone();
+    finishDone();
   } catch (err: any) {
-    clearTimeout(timeoutId);
     if (err?.name === 'AbortError') {
-      onError('Taking too long. Try again.');
+      finishError('Taking too long. Try again.');
     } else {
-      onError('Something went wrong. Try again.');
+      finishError('Something went wrong. Try again.');
     }
   }
 }
