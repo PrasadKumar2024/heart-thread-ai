@@ -20,6 +20,7 @@ export function ChatInput() {
   const [hasSentFirst, setHasSentFirst] = useState(true);
   const [showParticles, setShowParticles] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const activeRequestRef = useRef(0);
   const {
     activeMode, activeConversationId, createConversation,
     addMessage, updateLastAssistantMessage, setIsTyping, profile,
@@ -130,6 +131,16 @@ export function ChatInput() {
     addMessage(convId, { role: 'assistant', content: '' });
 
     let fullContent = '';
+    const requestId = activeRequestRef.current + 1;
+    activeRequestRef.current = requestId;
+    const clearTypingWithError = (message: string) => {
+      if (activeRequestRef.current !== requestId) return;
+      setIsTyping(false);
+      updateLastAssistantMessage(convId!, message);
+    };
+    const safetyTimeout = window.setTimeout(() => {
+      clearTypingWithError('Taking too long. Try again.');
+    }, 30000);
 
     try {
       await streamChat({
@@ -140,6 +151,8 @@ export function ChatInput() {
           updateLastAssistantMessage(convId!, fullContent);
         },
         onDone: async () => {
+          if (activeRequestRef.current !== requestId) return;
+          window.clearTimeout(safetyTimeout);
           setIsTyping(false);
           saveMessageToDB(convId!, 'assistant', fullContent, activeMode);
 
@@ -155,14 +168,14 @@ export function ChatInput() {
           }
         },
         onError: (error) => {
-          setIsTyping(false);
-          updateLastAssistantMessage(convId!, error);
+          window.clearTimeout(safetyTimeout);
+          clearTypingWithError(error);
           toast.error(error);
         },
       });
     } catch (err) {
-      setIsTyping(false);
-      updateLastAssistantMessage(convId!, 'Something went wrong. Try again.');
+      window.clearTimeout(safetyTimeout);
+      clearTypingWithError('Something went wrong. Try again.');
       toast.error('Failed to connect to AI');
     }
   };
