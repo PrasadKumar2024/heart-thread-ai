@@ -60,7 +60,7 @@ serve(async (req) => {
       });
     }
 
-    const fallbackToNonStreaming = async (reason: string) => {
+    const generateNonStreamingText = async (reason: string) => {
       console.warn("Gemini streaming fallback:", reason);
       const fallbackResponse = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -83,6 +83,12 @@ serve(async (req) => {
         .trim();
 
       if (!text) throw new Error("Gemini fallback returned empty response");
+
+      return text;
+    };
+
+    const fallbackToNonStreaming = async (reason: string) => {
+      const text = await generateNonStreamingText(reason);
 
       return new Response(
         `data: ${JSON.stringify({ choices: [{ delta: { content: text } }] })}\n\ndata: [DONE]\n\n`,
@@ -138,7 +144,8 @@ serve(async (req) => {
         }
         if (!sentAnyText) {
           console.error("Gemini stream completed without text");
-          await writer.write(encoder.encode(`data: ${JSON.stringify({ error: "Something went wrong. Try again." })}\n\n`));
+          const fallbackText = await generateNonStreamingText("stream completed without text");
+          await writer.write(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: fallbackText } }] })}\n\n`));
         }
         await writer.write(encoder.encode("data: [DONE]\n\n"));
       } catch (e) {
